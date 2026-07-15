@@ -48,7 +48,7 @@ La plataforma permitirá a los usuarios aprender cómo reciclar correctamente di
 |------------|-----|
 | Carlos | Scrum Master / QA |
 | Alejandro | DevOps |
-| Ángel | Backend |
+| Luis | Backend |
 | Ferney | Base de Datos |
 | Daniel | Frontend |
 | Andrés | UX/UI |
