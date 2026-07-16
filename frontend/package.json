@@ -1,7 +1,7 @@
 {
-  "name": "eco-ruta-frontend",
+  "name": "proyecto-integrador---maqueta",
+  "version": "0.0.0",
   "private": true,
-  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -9,6 +9,10 @@
     "preview": "vite preview"
   },
   "devDependencies": {
-    "vite": "^7.0.6"
+    "vite": "^8.1.0"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.3.1",
+    "tailwindcss": "^4.3.1"
   }
 }
