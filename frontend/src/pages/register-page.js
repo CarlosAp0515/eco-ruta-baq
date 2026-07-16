@@ -149,7 +149,7 @@ export function registerPage() {
 
               ¿Ya tienes una cuenta?
 
-              <a href="#" class="text-green-700 font-semibold">
+              <a href="#/login" class="text-green-700 font-semibold">
 
                   Inicia sesión
 

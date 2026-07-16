@@ -17,6 +17,8 @@ export function landingPage() {
 
           <ul class="hidden md:flex gap-8 font-medium">
 
+            <li><a href="#/login" class="bg-green-700 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-800 transition">Ingresar</a></li>
+
             <li><a href="#inicio" class="hover:text-green-700">Inicio</a></li>
             <li><a href="#problema" class="hover:text-green-700">Problema</a></li>
             <li><a href="#funciona" class="hover:text-green-700">Cómo funciona</a></li>

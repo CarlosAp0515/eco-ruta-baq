@@ -17,7 +17,7 @@ export function loginPage() {
 
           </div>
 
-          <form class="space-y-5">
+          <form id="loginForm" class="space-y-5">
 
               <div>
 
@@ -26,6 +26,7 @@ export function loginPage() {
                   </label>
 
                   <input
+                      id="loginEmail"
                       type="email"
                       placeholder="ejemplo@mail.com"
                       class="w-full border rounded-xl p-3 outline-none focus:ring-2 focus:ring-green-600"
@@ -40,6 +41,7 @@ export function loginPage() {
                   </label>
 
                   <input
+                      id="loginPassword"
                       type="password"
                       placeholder="********"
                       class="w-full border rounded-xl p-3 outline-none focus:ring-2 focus:ring-green-600"
@@ -65,12 +67,7 @@ export function loginPage() {
                   ¿No tienes cuenta?
 
                   <a
-                      href="#"
-                      class="text-green-700 font-semibold"
-                  >
-
-                      Crear cuenta
-
+                      href="#/register" class="text-green-700 font-semibold">Crear cuenta
                   </a>
 
               </p>

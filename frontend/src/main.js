@@ -1,29 +1,5 @@
-// import "./style.css";
-// import { loginPage } from "./pages/login";
-
-// document.querySelector("#app").innerHTML = loginPage();
-
-
-// import "./style.css";
-// import { landingPage } from "./pages/landing";
-
-// document.querySelector("#app").innerHTML = landingPage();
-
-
-
-
-
-
 import './style.css';
+import { router } from './router.js';
 
-import { registerPage } from './pages/registerPage.js';
-import { registerUser } from './services/register.js';
-
-
-const app = document.querySelector("#app");
-
-
-app.innerHTML = registerPage();
-
-
-registerUser();
+// Inicializar la aplicación al cargar por primera vez
+window.addEventListener('DOMContentLoaded', router);
