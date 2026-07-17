@@ -1,272 +1,585 @@
 // src/services/pointsService.js
-import { apiFetch, getCurrentUser, clearSession } from "./api.js";
 
-let reports = [];
-
-export async function initPointsDashboard() {
-    // ---- 1. IDENTIFICAR AL USUARIO ACTIVO ----
-    const currentUser = getCurrentUser();
-    const userNameDisplay = document.getElementById("userNameDisplay");
-
-    if (currentUser) {
-        userNameDisplay.textContent = `Hola, ${currentUser.name}`;
-    }
-
-    // ---- 2. CERRAR SESIÓN ----
-    const btnLogout = document.getElementById("btnLogout");
-    if (btnLogout) {
-        btnLogout.onclick = () => {
-            clearSession();
-            window.location.hash = "#/";
-        };
-    }
-
-    // ---- 3. CARGAR DATOS DEL BACKEND ----
-    await Promise.all([loadReports(), loadPointsSummary()]);
-
-    // ---- 4. CONTROLADORES DEL MODAL (REGISTRAR/EDITAR) ----
-    const modal = document.getElementById("deliveryModal");
-    const btnOpenModal = document.getElementById("btnOpenModal");
-    const btnCloseModal = document.getElementById("btnCloseModal");
-    const deliveryForm = document.getElementById("deliveryForm");
-    const modalTitle = document.getElementById("modalTitle");
-    const editIndexInput = document.getElementById("editIndex");
-
-    if (btnOpenModal) {
-        btnOpenModal.onclick = () => {
-            modalTitle.textContent = "♻️ Registrar Nueva Entrega";
-            editIndexInput.value = ""; // Vacío significa "Crear"
-            deliveryForm.reset();
-            modal.classList.remove("hidden");
-        };
-    }
-
-    if (btnCloseModal) {
-        btnCloseModal.onclick = () => modal.classList.add("hidden");
-    }
-
-    // ---- 5. FORMULARIO GUARDAR / ACTUALIZAR (CREATE & UPDATE) ----
-    if (deliveryForm) {
-        deliveryForm.onsubmit = async (e) => {
-            e.preventDefault();
-
-            const category = document.getElementById("deliveryCategory").value;
-            const quantity = document.getElementById("deliveryQuantity").value;
-            const unit = document.getElementById("deliveryUnit").value;
-            const evidenceInput = document.getElementById("deliveryEvidence");
-            const reportId = editIndexInput.value;
-
-            const formData = new FormData();
-            formData.append("category", category);
-            formData.append("quantity", quantity);
-            formData.append("unit", unit);
-            if (evidenceInput.files[0]) {
-                formData.append("evidence", evidenceInput.files[0]);
-            }
-
-            try {
-                if (reportId === "") {
-                    // ACCIÓN: CREAR (CREATE)
-                    const data = await apiFetch("/reports", { method: "POST", body: formData }, true);
-                    alert(`✅ ¡Entrega registrada! Quedó pendiente de validación (+${data.report.points} pts al ser aprobada).`);
-                } else {
-                    // ACCIÓN: EDITAR (UPDATE)
-                    await apiFetch(`/reports/${reportId}`, { method: "PUT", body: formData }, true);
-                    alert("✏️ ¡Entrega actualizada correctamente!");
-                }
-
-                await Promise.all([loadReports(), loadPointsSummary()]);
-                modal.classList.add("hidden");
-                deliveryForm.reset();
-            } catch (error) {
-                alert(`❌ ${error.message}`);
-            }
-        };
-    }
-
-    // ---- 6. MAPA DE PUNTOS DE ACOPIO (DESDE EL BACKEND) ----
-    initSpotsMap();
-
-    // ---- 7. REDIMIR BONOS ----
-    setupRedemptionHandlers();
-}
-
-// ---- CARGAR PUNTOS (confirmados/pendientes) DESDE EL BACKEND ----
-async function loadPointsSummary() {
-    const totalPointsDisplay = document.getElementById("totalPointsDisplay");
-    const pendingPointsDisplay = document.getElementById("pendingPointsDisplay");
-    const totalWeightDisplay = document.getElementById("totalWeightDisplay");
-
-    try {
-        const summary = await apiFetch("/points/me");
-        totalPointsDisplay.textContent = `${summary.confirmedPoints} pts`;
-        pendingPointsDisplay.textContent = summary.pendingPoints > 0
-            ? `+${summary.pendingPoints} pts pendientes de validación`
-            : "";
-        totalWeightDisplay.textContent = `${summary.totalKg} Kg`;
-    } catch (error) {
-        console.error("No se pudieron cargar los puntos:", error.message);
-    }
-}
-
-// ---- CARGAR MIS ENTREGAS (READ) ----
-async function loadReports() {
-    try {
-        const data = await apiFetch("/reports/me");
-        reports = data.reports;
-        renderDashboardData();
-    } catch (error) {
-        console.error("No se pudieron cargar las entregas:", error.message);
-    }
-}
-
-const STATUS_BADGES = {
-    pendiente: { label: "Pendiente", classes: "bg-orange-50 text-orange-700" },
-    validado: { label: "Validado", classes: "bg-green-50 text-green-700" },
-    rechazado: { label: "Rechazado", classes: "bg-red-50 text-red-700" }
+const UNIT_MAPPING = {
+  "Plástico": "Kg",
+  "Cartón y Papel": "Kg",
+  "Vidrio": "Kg",
+  "Pilas / Baterías": "Unidades",
+  "Aceite Usado": "Litros",
+  "Electrónicos (RAEE)": "Unidades"
 };
 
-function renderDashboardData() {
-    const tableBody = document.getElementById("historyTableBody");
-    if (!tableBody) return;
+const POINTS_MAPPING = {
+  "Plástico": 10,
+  "Cartón y Papel": 8,
+  "Vidrio": 12,
+  "Pilas / Baterías": 20,
+  "Aceite Usado": 15,
+  "Electrónicos (RAEE)": 18
+};
 
-    tableBody.innerHTML = "";
+// Datos para el Modal de Canje de Productos
+// Datos para el Modal de Canje de Productos (en src/services/pointsService.js)
+const REDEEM_DETAILS = {
+  10: {
+    title: "Bono 10% Descuento Alkosto",
+    pointsNeeded: 500,
+    products: [
+      "Pilas recargables (Duracell / Energizer)",
+      "Bombillos LED ahorradores de energía",
+      "Powerbanks (Baterías portátiles eco)",
+      "Multitomas con supresor de picos"
+    ]
+  },
+  20: {
+    title: "Bono 20% Descuento Alkosto",
+    pointsNeeded: 1000,
+    products: [
+      "Bicicletas convencionales y patinetas eléctricas",
+      "Baterías de repuesto para vehículos híbridos",
+      "Electrodomésticos con certificación energética Tipo A",
+      "Paneles y reflectores solares pequeños para jardín"
+    ]
+  }
+};
 
-    if (reports.length === 0) {
-        tableBody.innerHTML = `
-            <tr><td colspan="5" class="py-6 text-center text-slate-400">Aún no has registrado entregas.</td></tr>
-        `;
-        return;
-    }
+let currentPendingRedeem = null; // Variable de apoyo para la transacción activa
 
-    reports.forEach((report) => {
-        const date = new Date(report.created_at).toLocaleDateString("es-CO");
-        const status = STATUS_BADGES[report.status] || STATUS_BADGES.pendiente;
-        const canEdit = report.status === "pendiente";
+export function initPointsDashboard() {
+  console.log("🔄 Inicializando manejadores del Dashboard EcoRuta...");
 
-        const row = `
-            <tr class="hover:bg-slate-50 transition-colors">
-                <td class="py-4 font-medium text-slate-800">${date}</td>
-                <td class="py-4">
-                    <span class="bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full font-semibold text-xs tracking-wide">
-                        ${report.category}
-                    </span>
-                </td>
-                <td class="py-4 font-medium text-slate-600">${report.quantity} ${report.unit}</td>
-                <td class="py-4 font-bold text-green-700">
-                    ${report.points} pts
-                    <span class="block text-[10px] font-semibold ${status.classes} px-2 py-0.5 rounded-full w-fit mt-1">${status.label}</span>
-                </td>
-                <td class="py-4 text-center flex justify-center gap-2">
-                    <button class="btn-edit text-white hover:bg-blue-700 font-bold text-xs bg-blue-600 px-3 py-1.5 rounded-lg transition-colors shadow-sm disabled:opacity-40 disabled:cursor-not-allowed" data-id="${report.id}" ${canEdit ? "" : "disabled"}>
-                        Editar
-                    </button>
-                    <button class="btn-delete text-white hover:bg-red-700 font-bold text-xs bg-red-600 px-3 py-1.5 rounded-lg transition-colors shadow-sm disabled:opacity-40 disabled:cursor-not-allowed" data-id="${report.id}" ${canEdit ? "" : "disabled"}>
-                        Borrar
-                    </button>
-                </td>
-            </tr>
-        `;
-        tableBody.insertAdjacentHTML("beforeend", row);
-    });
+  // 1. LEER USUARIO EN SESIÓN
+  let currentUser = null;
+  try {
+    currentUser = JSON.parse(localStorage.getItem("current_user"));
+  } catch (error) {
+    console.error("Error al leer current_user:", error);
+  }
 
-    document.querySelectorAll(".btn-edit:not([disabled])").forEach((btn) => {
-        btn.onclick = (e) => openEditModal(e.target.getAttribute("data-id"));
-    });
+  if (!currentUser) {
+    console.warn("⚠️ No hay un usuario activo en sesión.");
+    window.location.hash = '#/login';
+    return;
+  }
 
-    document.querySelectorAll(".btn-delete:not([disabled])").forEach((btn) => {
-        btn.onclick = (e) => deleteDelivery(e.target.getAttribute("data-id"));
-    });
-}
+  // Actualizar el header de bienvenida del usuario
+  const userNameDisplay = document.getElementById("userNameDisplay");
+  if (userNameDisplay) {
+    userNameDisplay.textContent = `Hola, ${currentUser.name}`;
+  }
 
-function openEditModal(reportId) {
-    const modal = document.getElementById("deliveryModal");
-    const modalTitle = document.getElementById("modalTitle");
-    const editIndexInput = document.getElementById("editIndex");
-    const categorySelect = document.getElementById("deliveryCategory");
-    const quantityInput = document.getElementById("deliveryQuantity");
-    const unitSelect = document.getElementById("deliveryUnit");
-
-    const report = reports.find((r) => r.id === reportId);
-    if (!report) return;
-
-    modalTitle.textContent = "✏️ Editar Entrega";
-    editIndexInput.value = report.id;
-    categorySelect.value = report.category;
-    quantityInput.value = report.quantity;
-    unitSelect.value = report.unit;
-
-    modal.classList.remove("hidden");
-}
-
-async function deleteDelivery(reportId) {
-    if (!confirm("⚠️ ¿Estás seguro de que quieres eliminar este registro?")) return;
-
-    try {
-        await apiFetch(`/reports/${reportId}`, { method: "DELETE" });
-        await Promise.all([loadReports(), loadPointsSummary()]);
-    } catch (error) {
-        alert(`❌ ${error.message}`);
-    }
-}
-
-// ---- 📍 MAPA DE PUNTOS DE ACOPIO USANDO LEAFLET.JS (datos desde el backend) ----
-async function initSpotsMap() {
-    const mapContainer = document.getElementById("map");
-    if (!mapContainer) return;
-
-    let spots = [];
-    try {
-        const data = await apiFetch("/spots");
-        spots = data.spots;
-    } catch (error) {
-        console.error("No se pudieron cargar los puntos de acopio:", error.message);
-        return;
-    }
-
-    import("https://unpkg.com/leaflet@1.9.4/dist/leaflet-src.esm.js")
-        .then((L) => {
-            const barranquillaCoords = [10.9878, -74.8000];
-            const map = L.map('map').setView(barranquillaCoords, 12);
-
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors'
-            }).addTo(map);
-
-            spots.forEach(spot => {
-                L.marker([spot.lat, spot.lng])
-                    .addTo(map)
-                    .bindPopup(`
-                        <div class="p-1">
-                            <span class="text-[10px] font-bold uppercase tracking-wider bg-green-100 text-green-800 px-2 py-0.5 rounded-full">${spot.locality}</span>
-                            <h4 class="text-sm font-bold text-slate-800 mt-1.5">${spot.name}</h4>
-                            <p class="text-xs text-slate-600 mt-1">${spot.description || ""}</p>
-                            <p class="text-[11px] text-green-600 font-semibold mt-2">📍 ¡Trae tus residuos aquí!</p>
-                        </div>
-                    `);
-            });
-        })
-        .catch(err => console.error("No se pudo cargar el mapa interactivo:", err));
-}
-
-// ---- CANJEO (vista previa; el catálogo de recompensas aún no persiste en el backend) ----
-function setupRedemptionHandlers() {
-    const btn10 = document.getElementById("btnRedeem10");
-    const btn20 = document.getElementById("btnRedeem20");
-
-    const handleRedeem = async (requiredPoints, rewardName) => {
-        try {
-            const summary = await apiFetch("/points/me");
-            if (summary.confirmedPoints >= requiredPoints) {
-                alert(`🎉 ¡Tienes puntos suficientes para el bono de ${rewardName}! (Función de canje disponible próximamente).`);
-            } else {
-                alert(`❌ Puntos insuficientes. Tienes ${summary.confirmedPoints} pts, requiere ${requiredPoints} pts.`);
-            }
-        } catch (error) {
-            alert(`❌ ${error.message}`);
-        }
+  // 2. LOGOUT (Cierre de sesión con id corregido a 'btnLogout')
+  const btnLogout = document.getElementById("btnLogout");
+  if (btnLogout) {
+    btnLogout.onclick = function (e) {
+      e.preventDefault();
+      console.log("🚪 Cerrando sesión...");
+      localStorage.removeItem("current_user");
+      window.location.hash = '#/login';
     };
+  }
 
-    if (btn10) btn10.onclick = () => handleRedeem(500, "10% Alkosto");
-    if (btn20) btn20.onclick = () => handleRedeem(1000, "20% Alkosto");
+  // 3. CARGAR EL MAPA INTERACTIVO DE BARRANQUILLA
+  setupInteractiveMap();
+
+  // 4. SEPARAR LÓGICA DE ROLES
+  if (currentUser.role === "admin") {
+    try {
+      setupAdminDashboardLogic();
+    } catch (err) {
+      console.error("Error en Admin Dashboard:", err);
+    }
+  } else {
+    try {
+      setupUserModalHandlers();
+      setupMaterialUnitAutoSelection();
+      setupUserRegistrationForm(currentUser);
+      renderUserMetricsAndHistory(currentUser);
+      setupRedeemModalHandlers(currentUser);
+    } catch (err) {
+      console.error("Error en User Dashboard:", err);
+    }
+  }
 }
+
+// 🗺️ CONFIGURAR MAPA INTERACTIVO CON PUNTOS DE BARRANQUILLA
+function setupInteractiveMap() {
+  const mapElement = document.getElementById("map");
+  if (!mapElement) {
+    console.warn("⚠️ Contenedor de mapa no encontrado.");
+    return;
+  }
+
+  // Si ya existía un mapa cargado por Leaflet en este elemento, evitamos inicializarlo dos veces
+  if (mapElement._leaflet_id) {
+    return;
+  }
+
+  // Coordenadas centrales de Barranquilla
+  const barranquillaCoords = [10.9639, -74.7964];
+
+  // Cargar el script de Leaflet si no existe globalmente
+  if (typeof L === 'undefined') {
+    const script = document.createElement('script');
+    script.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
+    script.onload = () => buildMapInstance(barranquillaCoords);
+    document.head.appendChild(script);
+  } else {
+    buildMapInstance(barranquillaCoords);
+  }
+}
+
+function buildMapInstance(coords) {
+  try {
+    // 1. Inicializar el mapa centrado en Barranquilla
+    const map = L.map('map').setView(coords, 12);
+
+    // 2. Cargar la capa de diseño visual (OpenStreetMap)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // 3. Puntos de recogida sincronizados
+const points = [
+
+  { 
+    name: "EcoPunto Parque Venezuela", 
+    coords: [11.0089, -74.8143], 
+    desc: "Acepta plásticos, papel y vidrio." 
+  },
+  { 
+    name: "Punto Verde CC Buenavista", 
+    coords: [11.0135, -74.8219], 
+    desc: "Especializado en pilas, baterías y residuos RAEE." 
+  },
+  { 
+    name: "Centro de Acopio Prado", 
+    coords: [10.9902, -74.7952], 
+    desc: "Acepta aceite de cocina usado y cartón." 
+  },
+  { 
+    name: "Punto Ecológico Parque de la Electrificadora", 
+    coords: [11.0163, -74.8122], 
+    desc: "Residuos domésticos reciclables limpios." 
+  },
+  { 
+    name: "EcoPunto Plaza de la Paz", 
+    coords: [10.9878, -74.7889], 
+    desc: "Punto central de recolección de botellas PET y tapitas." 
+  },
+
+  // --- NUEVAS ZONAS: SUR, SUROCCIDENTE Y CENTRO (Agregados) ---
+  { 
+    name: "EcoPunto Éxito Metropolitano (Sur)", 
+    coords: [10.9255, -74.7995], 
+    desc: "Punto de recolección de envases PET, latas de aluminio y cartón aplanado." 
+  },
+  { 
+    name: "Centro Comunitario de Reciclaje - La Paz", 
+    coords: [10.9715, -74.8315], 
+    desc: "Proyecto de reciclaje de barrio. Acepta plásticos, papel de archivo y cartón." 
+  },
+  { 
+    name: "EcoPunto Centro Comercial Paseo de la Castellana (Centro)", 
+    coords: [10.9805, -74.7795], 
+    desc: "Ideal para comerciantes. Recolección masiva de cartón, plástico film y papel." 
+  }
+];
+
+    // 4. Recorrer el arreglo y añadir cada marcador manualmente al mapa
+    points.forEach(p => {
+      L.marker(p.coords)
+        .addTo(map)
+        .bindPopup(`
+          <div style="font-family: sans-serif;">
+            <b style="color: #15803d; font-size: 14px;">${p.name}</b>
+            <p style="margin: 4px 0 0 0; font-size: 12px; color: #475569;">${p.desc}</p>
+          </div>
+        `);
+    });
+
+  } catch (error) {
+    console.error("Error inicializando mapa de Leaflet:", error);
+  }
+}
+
+// 📐 ASIGNACIÓN AUTOMÁTICA DE LA UNIDAD EN EL MODAL
+function setupMaterialUnitAutoSelection() {
+  const categorySelect = document.getElementById("deliveryCategory");
+  const unitSelect = document.getElementById("deliveryUnit");
+
+  if (!categorySelect || !unitSelect) return;
+
+  categorySelect.onchange = function (e) {
+    const selected = e.target.value;
+    const matchedUnit = UNIT_MAPPING[selected];
+    if (matchedUnit) {
+      unitSelect.value = matchedUnit;
+    }
+  };
+}
+
+// 🗂️ CONTROL DE APERTURA Y CIERRE DEL MODAL DE ENTREGAS
+function setupUserModalHandlers() {
+  const modal = document.getElementById("deliveryModal");
+  const btnOpen = document.getElementById("btnOpenModal");
+  const btnClose = document.getElementById("btnCloseModal");
+
+  if (!modal || !btnOpen || !btnClose) return;
+
+  btnOpen.onclick = () => {
+    document.getElementById("deliveryForm").reset();
+    document.getElementById("editIndex").value = "";
+    document.getElementById("modalTitle").textContent = "♻️ Registrar Nueva Entrega";
+    modal.classList.remove("hidden");
+  };
+
+  btnClose.onclick = () => {
+    modal.classList.add("hidden");
+  };
+}
+
+// 📝 FORMULARIO DE REGISTRO DE ENTREGAS
+function setupUserRegistrationForm(currentUser) {
+  const form = document.getElementById("deliveryForm");
+  const modal = document.getElementById("deliveryModal");
+
+  if (!form) return;
+
+  form.onsubmit = function (e) {
+    e.preventDefault();
+
+    const category = document.getElementById("deliveryCategory").value;
+    const quantity = parseFloat(document.getElementById("deliveryQuantity").value);
+    const unit = document.getElementById("deliveryUnit").value;
+    const editIndexVal = document.getElementById("editIndex").value;
+
+    if (!category || isNaN(quantity) || quantity <= 0 || !unit) {
+      alert("⚠️ Todos los campos son obligatorios y la cantidad debe ser mayor a 0.");
+      return;
+    }
+
+    const pointsFactor = POINTS_MAPPING[category] || 5;
+    const pointsEarned = Math.round(quantity * pointsFactor);
+
+    try {
+      let deliveries = JSON.parse(localStorage.getItem("deliveries_db")) || [];
+
+      if (editIndexVal !== "") {
+        const idToEdit = parseInt(editIndexVal);
+        deliveries = deliveries.map(item => {
+          if (item.id === idToEdit) {
+            return {
+              ...item,
+              material: category,
+              quantity: quantity,
+              unit: unit,
+              points: pointsEarned
+            };
+          }
+          return item;
+        });
+        alert("🎉 Registro actualizado con éxito.");
+      } else {
+        const newDelivery = {
+          id: Date.now(),
+          userId: currentUser.id,
+          userName: currentUser.name,
+          material: category,
+          quantity: quantity,
+          unit: unit,
+          points: pointsEarned,
+          date: new Date().toLocaleDateString()
+        };
+        deliveries.push(newDelivery);
+        alert(`🎉 ¡Entrega registrada con éxito! Sumaste +${pointsEarned} puntos.`);
+      }
+
+      localStorage.setItem("deliveries_db", JSON.stringify(deliveries));
+      
+      if (modal) modal.classList.add("hidden");
+      form.reset();
+      
+      renderUserMetricsAndHistory(currentUser);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+}
+
+//  CONTROLES DEL MODAL DE REDENCIÓN (PRODUCTOS APLICABLES)
+function setupRedeemModalHandlers(currentUser) {
+  const btn10 = document.getElementById("btnRedeem10");
+  const btn20 = document.getElementById("btnRedeem20");
+  const redeemModal = document.getElementById("redeemModal");
+  const closeBtn = document.getElementById("btnCloseRedeemModal");
+  const cancelBtn = document.getElementById("btnCancelRedeem");
+  const confirmBtn = document.getElementById("btnConfirmRedeem");
+
+  if (!redeemModal || !confirmBtn) return;
+
+const openRedeem = (discountType) => {
+    const data = REDEEM_DETAILS[discountType];
+    currentPendingRedeem = { type: discountType, ...data };
+
+    document.getElementById("redeemModalTitle").textContent = `🎟️ ${data.title}`; // Opcional: Reemplaza por SVG si prefieres vaciar el texto o dejarlo limpio.
+    
+    const listElement = document.getElementById("redeemProductList");
+    
+    // Inyección de item con icono SVG moderno de check verde
+    listElement.innerHTML = data.products.map(p => `
+      <li class="flex items-center gap-2 py-1">
+        <svg class="w-4 h-4 text-green-600 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+        </svg>
+        <span>${p}</span>
+      </li>
+    `).join("");
+
+    redeemModal.classList.remove("hidden");
+  };
+
+  if (btn10) btn10.onclick = () => openRedeem(10);
+  if (btn20) btn20.onclick = () => openRedeem(20);
+
+  const hideModal = () => {
+    redeemModal.classList.add("hidden");
+    currentPendingRedeem = null;
+  };
+
+  if (closeBtn) closeBtn.onclick = hideModal;
+  if (cancelBtn) cancelBtn.onclick = hideModal;
+
+  confirmBtn.onclick = () => {
+    if (!currentPendingRedeem) return;
+
+    // Obtener puntos del usuario actual calculándolos dinámicamente
+    const deliveries = JSON.parse(localStorage.getItem("deliveries_db")) || [];
+    const userDeliveries = deliveries.filter(d => d.userId === currentUser.id);
+    const totalPoints = userDeliveries.reduce((sum, d) => sum + (d.points || 0), 0);
+
+    if (totalPoints < currentPendingRedeem.pointsNeeded) {
+      alert(`❌ No tienes puntos suficientes. Requieres ${currentPendingRedeem.pointsNeeded} pts y tienes ${totalPoints} pts.`);
+      hideModal();
+      return;
+    }
+
+    // Para canjear, insertamos una "entrega negativa" con los puntos de costo del bono
+    try {
+      const negativeDelivery = {
+        id: Date.now(),
+        userId: currentUser.id,
+        userName: currentUser.name,
+        material: `Canje: ${currentPendingRedeem.title}`,
+        quantity: 1,
+        unit: "Unidades",
+        points: -currentPendingRedeem.pointsNeeded,
+        date: new Date().toLocaleDateString()
+      };
+
+      deliveries.push(negativeDelivery);
+      localStorage.setItem("deliveries_db", JSON.stringify(deliveries));
+
+      alert(`🎁 ¡Bono canjeado con éxito! Se han descontado ${currentPendingRedeem.pointsNeeded} puntos de tu saldo.`);
+      hideModal();
+      renderUserMetricsAndHistory(currentUser);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+}
+
+// 📊 RENDERIZACIÓN DE HISTORIAL Y MÉTRICAS DEL USUARIO
+function renderUserMetricsAndHistory(currentUser) {
+  const deliveries = JSON.parse(localStorage.getItem("deliveries_db")) || [];
+  const userDeliveries = deliveries.filter(d => d.userId === currentUser.id);
+
+  const totalPoints = userDeliveries.reduce((sum, d) => sum + (d.points || 0), 0);
+  const totalWeight = userDeliveries.reduce((sum, d) => {
+    if (d.unit === "Kg" && d.points > 0) return sum + d.quantity;
+    return sum;
+  }, 0);
+
+  const totalPointsDisplay = document.getElementById("totalPointsDisplay");
+  const totalWeightDisplay = document.getElementById("totalWeightDisplay");
+
+  if (totalPointsDisplay) totalPointsDisplay.textContent = `${totalPoints} pts`;
+  if (totalWeightDisplay) totalWeightDisplay.textContent = `${totalWeight.toFixed(1)} kg`;
+
+  const tbody = document.getElementById("historyTableBody");
+  if (!tbody) return;
+
+  if (userDeliveries.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="5" class="p-4 text-center text-slate-400">No has registrado entregas todavía.</td>
+      </tr>
+    `;
+    return;
+  }
+
+  tbody.innerHTML = userDeliveries.map(d => {
+    const isRedeem = d.points < 0;
+    return `
+      <tr class="border-b border-slate-50 hover:bg-slate-50/50 transition">
+        <td class="py-3 font-medium">${d.date}</td>
+        <td class="py-3 font-semibold text-slate-700">${d.material}</td>
+        <td class="py-3">${isRedeem ? '-' : d.quantity + ' ' + d.unit}</td>
+        <td class="py-3 ${isRedeem ? 'text-red-600' : 'text-green-700'} font-bold">
+          ${isRedeem ? '' : '+'}${d.points} pts
+        </td>
+        <td class="py-3 text-center flex justify-center gap-2">
+          ${isRedeem ? '<span class="text-xs text-slate-400 italic">Canjeado</span>' : `
+            <button onclick="editDelivery(${d.id})" class="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded hover:bg-blue-100 font-semibold transition">Editar</button>
+            <button onclick="deleteDelivery(${d.id})" class="text-xs bg-red-50 text-red-600 px-2 py-1 rounded hover:bg-red-100 font-semibold transition">Eliminar</button>
+          `}
+        </td>
+      </tr>
+    `;
+  }).join("");
+}
+
+// 🗑️ ACCIONES DE EDICIÓN Y ELIMINACIÓN PARA EL USUARIO COMÚN
+window.editDelivery = function(deliveryId) {
+  const deliveries = JSON.parse(localStorage.getItem("deliveries_db")) || [];
+  const delivery = deliveries.find(d => d.id === deliveryId);
+  if (!delivery) return;
+
+  const modal = document.getElementById("deliveryModal");
+  if (!modal) return;
+
+  document.getElementById("editIndex").value = delivery.id;
+  document.getElementById("deliveryCategory").value = delivery.material;
+  document.getElementById("deliveryQuantity").value = delivery.quantity;
+  document.getElementById("deliveryUnit").value = delivery.unit;
+  document.getElementById("modalTitle").textContent = "✏️ Editar Mi Entrega";
+
+  modal.classList.remove("hidden");
+};
+
+window.deleteDelivery = function(deliveryId) {
+  if (confirm("¿Estás seguro de que deseas eliminar este registro de entrega? Se restarán los puntos correspondientes.")) {
+    let deliveries = JSON.parse(localStorage.getItem("deliveries_db")) || [];
+    deliveries = deliveries.filter(d => d.id !== deliveryId);
+    localStorage.setItem("deliveries_db", JSON.stringify(deliveries));
+
+    const currentUser = JSON.parse(localStorage.getItem("current_user"));
+    if (currentUser) renderUserMetricsAndHistory(currentUser);
+  }
+};
+
+// Lógica del admin permanece inalterada...
+function setupAdminDashboardLogic() {
+  const searchInput = document.getElementById("adminSearchInput");
+  const materialFilter = document.getElementById("adminMaterialFilter");
+
+  if (searchInput) searchInput.oninput = renderFilteredData;
+  if (materialFilter) materialFilter.onchange = renderFilteredData;
+
+  renderFilteredData();
+}
+
+function renderFilteredData() {
+  try {
+    const users = JSON.parse(localStorage.getItem("users_db")) || [];
+    const deliveries = JSON.parse(localStorage.getItem("deliveries_db")) || [];
+
+    const searchInput = document.getElementById("adminSearchInput");
+    const materialFilter = document.getElementById("adminMaterialFilter");
+
+    const searchVal = searchInput ? searchInput.value.toLowerCase().trim() : "";
+    const filterVal = materialFilter ? materialFilter.value : "all";
+
+    const recyclers = users.filter(u => u.role !== "admin");
+
+    const totalWeight = deliveries.reduce((acc, d) => {
+      if (d.unit === "Kg" && d.points > 0) return acc + d.quantity;
+      return acc;
+    }, 0);
+
+    const materialCounts = {};
+    deliveries.forEach(d => {
+      if (d.points > 0) {
+        materialCounts[d.material] = (materialCounts[d.material] || 0) + 1;
+      }
+    });
+
+    let topMaterial = "Ninguno";
+    let maxCount = 0;
+    Object.keys(materialCounts).forEach(m => {
+      if (materialCounts[m] > maxCount) {
+        maxCount = materialCounts[m];
+        topMaterial = m;
+      }
+    });
+
+    if (document.getElementById("totalUsersCount")) {
+      document.getElementById("totalUsersCount").textContent = recyclers.length;
+      document.getElementById("totalWeightCount").textContent = `${totalWeight.toFixed(1)} kg`;
+      document.getElementById("topMaterialCount").textContent = topMaterial;
+      document.getElementById("totalDeliveriesCount").textContent = deliveries.filter(d => d.points > 0).length;
+    }
+
+    const tbody = document.getElementById("adminUsersTableBody");
+    if (!tbody) return;
+
+    const filteredRecyclers = recyclers.filter(u => {
+      const matchesSearch = u.name.toLowerCase().includes(searchVal) || u.email.toLowerCase().includes(searchVal);
+      let matchesMaterial = true;
+      if (filterVal !== "all") {
+        matchesMaterial = deliveries.some(d => d.userId === u.id && d.material === filterVal);
+      }
+      return matchesSearch && matchesMaterial;
+    });
+
+    if (filteredRecyclers.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="6" class="p-4 text-center text-slate-400">Ningún usuario coincide con la búsqueda.</td>
+        </tr>
+      `;
+      return;
+    }
+
+    tbody.innerHTML = filteredRecyclers.map(u => {
+      const userDeliveries = deliveries.filter(d => d.userId === u.id);
+      const userPoints = userDeliveries.reduce((sum, d) => sum + (d.points || 0), 0);
+      const userValidDeliveries = userDeliveries.filter(d => d.points > 0);
+
+      return `
+        <tr class="hover:bg-slate-50/50 transition">
+          <td class="p-4 font-semibold text-slate-900">${u.name}</td>
+          <td class="p-4 text-slate-500">${u.email}</td>
+          <td class="p-4 text-center font-extrabold text-green-700">⭐ ${userPoints} pts</td>
+          <td class="p-4 text-center font-semibold text-slate-700">${userValidDeliveries.length} entregas</td>
+          <td class="p-4 text-right">
+            <button onclick="deleteUser(${u.id})" class="text-xs bg-red-50 hover:bg-red-100 text-red-600 font-bold px-3 py-1.5 rounded-lg border border-red-100 transition">
+              Eliminar
+            </button>
+          </td>
+        </tr>
+      `;
+    }).join("");
+
+  } catch (err) {
+    console.error("Error al renderizar los datos del panel de administrador:", err);
+  }
+}
+
+window.deleteUser = function(userId) {
+  if (confirm("⚠️ ¿Estás completamente seguro de eliminar a este reciclador?")) {
+    try {
+      let users = JSON.parse(localStorage.getItem("users_db")) || [];
+      users = users.filter(u => u.id !== userId);
+      localStorage.setItem("users_db", JSON.stringify(users));
+
+      let deliveries = JSON.parse(localStorage.getItem("deliveries_db")) || [];
+      deliveries = deliveries.filter(d => d.userId !== userId);
+      localStorage.setItem("deliveries_db", JSON.stringify(deliveries));
+
+      renderFilteredData();
+    } catch (err) {
+      console.error(err);
+    }
+  }
+};

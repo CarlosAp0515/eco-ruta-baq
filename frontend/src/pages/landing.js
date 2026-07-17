@@ -6,9 +6,16 @@ export function landingPage() {
 
   <div class="min-h-screen bg-slate-50 flex flex-col font-sans">
     
+    <!-- NAVBAR (Logo unificado con el Dashboard) -->
     <nav class="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-slate-100">
       <div class="max-w-7xl mx-auto px-6 h-16 flex justify-between items-center">
-        <span class="text-2xl font-bold text-green-700 flex items-center gap-2">🌱 EcoRuta BAQ</span>
+        <span class="text-xl font-extrabold text-slate-900 flex items-center gap-2">
+          <!-- Icono Planta Hojas SVG -->
+          <svg class="w-6 h-6 text-green-500 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-.778.099-1.533.284-2.253" />
+          </svg>
+          EcoRuta BAQ
+        </span>
         <div class="flex items-center gap-4">
           <a href="#/login" class="text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors">Iniciar Sesión</a>
           <a href="#/register" class="bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition-all">
@@ -18,10 +25,11 @@ export function landingPage() {
       </div>
     </nav>
 
+    <!-- HERO SECTION -->
     <header class="bg-gradient-to-b from-green-50 to-slate-50 py-20 px-6 border-b border-slate-100">
       <div class="max-w-4xl mx-auto text-center space-y-6">
-        <span class="bg-green-100 text-green-800 font-bold uppercase text-xs tracking-wider px-3.5 py-1.5 rounded-full">
-          ¡Hola, Barranquilla! 🇨🇴
+        <span class="bg-yellow-400 text-white font-bold uppercase text-xs tracking-wider px-3.5 py-1.5 rounded-full">
+          ¡Hola, Barranquilla!
         </span>
         <h1 class="text-4xl md:text-6xl font-extrabold text-slate-900 tracking-tight leading-tight">
           Recicla tus residuos cotidianos y <span class="text-green-700">gana recompensas</span>
@@ -40,6 +48,7 @@ export function landingPage() {
       </div>
     </header>
 
+    <!-- CÓMO FUNCIONA -->
     <section class="py-20 px-6 max-w-7xl mx-auto w-full">
       <div class="text-center space-y-3 mb-16">
         <h2 class="text-3xl font-extrabold text-slate-900">¿Cómo funciona EcoRuta BAQ?</h2>
@@ -48,34 +57,78 @@ export function landingPage() {
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div class="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm space-y-4">
-          <div class="text-3xl bg-green-50 w-12 h-12 flex items-center justify-center rounded-xl">📦</div>
+          <div class="bg-green-50 w-12 h-12 flex items-center justify-center rounded-xl">
+            <svg class="w-6 h-6 text-green-600" xmlns="http://www.w3.org/2000/xl" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" />
+            </svg>
+          </div>
           <h3 class="text-xl font-bold text-slate-900">1. Separa tus Residuos</h3>
           <p class="text-slate-600">Reúne plástico, cartón, vidrio, aceite o pilas. Clasifícalos fácilmente en tu hogar o negocio.</p>
         </div>
 
         <div class="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm space-y-4">
-          <div class="text-3xl bg-blue-50 w-12 h-12 flex items-center justify-center rounded-xl">📍</div>
+          <div class="bg-blue-50 w-12 h-12 flex items-center justify-center rounded-xl">
+            <svg class="w-6 h-6 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25s-7.5-4.108-7.5-11.25a7.5 7.5 0 1115 0z" />
+            </svg>
+          </div>
           <h3 class="text-xl font-bold text-slate-900">2. Entrega en Acopios</h3>
           <p class="text-slate-600">Ubica tu punto de recolección en el mapa interactivo y lleva tus materiales para ser pesados.</p>
         </div>
 
         <div class="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm space-y-4">
-          <div class="text-3xl bg-orange-50 w-12 h-12 flex items-center justify-center rounded-xl">🎟️</div>
+          <div class="bg-orange-50 w-12 h-12 flex items-center justify-center rounded-xl">
+            <svg class="w-6 h-6 text-orange-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-12v.75m0 3v.75m0 3v.75m0 3V18M5.25 6h13.5A2.25 2.25 0 0121 8.25v7.5A2.25 2.25 0 0118.75 18H5.25A2.25 2.25 0 013 15.75v-7.5A2.25 2.25 0 015.25 6z" />
+            </svg>
+          </div>
           <h3 class="text-xl font-bold text-slate-900">3. ¡Gana Recompensas!</h3>
           <p class="text-slate-600">Por cada kilogramo o unidad de desecho, sumas puntos directos a tu cuenta canjeables por bonos de descuento.</p>
         </div>
       </div>
     </section>
 
+    <!-- GUÍA DE PREPARACIÓN DE RESIDUOS -->
+    <section class="py-20 bg-white">
+      <div class="max-w-6xl mx-auto px-6">
+        <div class="text-center space-y-2 mb-16">
+          <span class="bg-green-100 text-green-800 font-bold uppercase text-xs tracking-wider px-3 py-1 rounded-full">Manual Práctico</span>
+          <h2 class="text-3xl font-extrabold text-slate-900">¿Cómo preparar tus residuos para entrega?</h2>
+          <p class="text-slate-500 max-w-xl mx-auto">Sigue estos lineamientos ecológicos para asegurar que tus materiales clasifiquen para ganar puntos.</p>
+        </div>
+    
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div class="space-y-3 border-l-2 border-green-500 pl-4">
+            <h4 class="font-bold text-lg text-slate-800">1. Botellas de Plástico</h4>
+            <p class="text-sm text-slate-600">Vacía el contenido, enjuágalas para retirar azúcares, aplástalas para ahorrar espacio y colócales su tapa.</p>
+          </div>
+          <div class="space-y-3 border-l-2 border-blue-500 pl-4">
+            <h4 class="font-bold text-lg text-slate-800">2. Cartones y Papel</h4>
+            <p class="text-sm text-slate-600">Desarma las cajas para dejarlas planas. Asegúrate de que no tengan grasa de comida, pintura o aceites.</p>
+          </div>
+          <div class="space-y-3 border-l-2 border-yellow-500 pl-4">
+            <h4 class="font-bold text-lg text-slate-800">3. Aceite Usado</h4>
+            <p class="text-sm text-slate-600">Espera que se enfríe, pásalo por un colador para quitarle residuos de comida y almacénalo en una botella plástica limpia.</p>
+          </div>
+          <div class="space-y-3 border-l-2 border-red-500 pl-4">
+            <h4 class="font-bold text-lg text-slate-800">4. Pilas y Electrónicos</h4>
+            <p class="text-sm text-slate-600">Recubre las terminales con cinta adhesiva transparente si están deterioradas para evitar corrosión química cruzada.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECCIÓN DEL MAPA INTERACTIVO -->
     <section class="py-20 bg-slate-100 border-t border-b border-slate-200">
       <div class="max-w-7xl mx-auto px-6 text-center space-y-8">
         <div class="space-y-3">
           <span class="text-green-700 font-bold uppercase text-xs tracking-widest bg-green-50 px-3 py-1 rounded-full">
-            Cobertura Total
+            Cobertura Urbana
           </span>
-          <h2 class="text-3xl font-extrabold text-slate-900">EcoRuta en las 5 Localidades de BAQ</h2>
+          <h2 class="text-3xl font-extrabold text-slate-900">Mapa Ecológico de Barranquilla</h2>
           <p class="text-slate-500 max-w-2xl mx-auto">
-            Identifica tu punto de acopio más cercano. Tenemos estaciones estratégicas en Riomar, Suroeste, Suroriente, Metropolitana y Norte-Centro Histórico.
+            Explora las ubicaciones exactas de nuestros 8 puntos autorizados distribuidos de manera estratégica.
           </p>
         </div>
 
@@ -83,45 +136,118 @@ export function landingPage() {
           <div id="landingMap" class="w-full h-[500px] rounded-2xl border border-slate-100 z-10"></div>
         </div>
 
+        <!-- DIRECTORIO VISUAL COMPLEMENTARIO (Mapeado con referencias "Cerca a...") -->
         <div class="max-w-5xl mx-auto mt-12 text-left">
           <h3 class="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
-            📋 Directorio de Puntos de Acopio Autorizados
+            <svg class="w-5 h-5 text-slate-700 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            Directorio de Red de Acopios Oficiales
           </h3>
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             
-            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition">
-              <span class="text-[10px] font-bold uppercase tracking-wider bg-green-100 text-green-800 px-2.5 py-1 rounded-full">Riomar</span>
-              <h4 class="text-base font-bold text-slate-800 mt-3">Centro de Acopio Buenavista</h4>
-              <p class="text-xs text-slate-500 mt-1">📍 Cerca al C.C. Buenavista</p>
-              <p class="text-sm text-slate-600 mt-2"><strong>Acepta:</strong> Plásticos (PET/PEAD), Vidrio y Cartón.</p>
+            <!-- 1. EcoPunto Parque Venezuela -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col justify-between">
+              <div>
+                <span class="text-[10px] font-bold uppercase tracking-wider bg-green-100 text-green-800 px-2.5 py-1 rounded-full">Norte-Centro Histórico</span>
+                <h4 class="text-base font-bold text-slate-800 mt-3">EcoPunto Parque Venezuela</h4>
+                <p class="text-xs text-slate-500 mt-1.5 flex items-center gap-1.5">
+                  <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                  Ubicación: Cerca al Parque Venezuela
+                </p>
+              </div>
+              <p class="text-sm text-slate-600 mt-4">Acepta plásticos, papel y vidrio.</p>
             </div>
 
-            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition">
-              <span class="text-[10px] font-bold uppercase tracking-wider bg-green-100 text-green-800 px-2.5 py-1 rounded-full">Norte-Centro Histórico</span>
-              <h4 class="text-base font-bold text-slate-800 mt-3">Punto Verde Parque Venezuela</h4>
-              <p class="text-xs text-slate-500 mt-1">📍 Parque Venezuela</p>
-              <p class="text-sm text-slate-600 mt-2"><strong>Acepta:</strong> Pilas, Baterías, Aceite de Cocina Usado y RAEE.</p>
+            <!-- 2. Punto Verde CC Buenavista -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col justify-between">
+              <div>
+                <span class="text-[10px] font-bold uppercase tracking-wider bg-green-100 text-green-800 px-2.5 py-1 rounded-full">Riomar</span>
+                <h4 class="text-base font-bold text-slate-800 mt-3">Punto Verde CC Buenavista</h4>
+                <p class="text-xs text-slate-500 mt-1.5 flex items-center gap-1.5">
+                  <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                  Ubicación: Cerca al C.C. Buenavista (Riomar)
+                </p>
+              </div>
+              <p class="text-sm text-slate-600 mt-4">Especializado en pilas, baterías y residuos RAEE.</p>
             </div>
 
-            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition">
-              <span class="text-[10px] font-bold uppercase tracking-wider bg-green-100 text-green-800 px-2.5 py-1 rounded-full">Suroeste</span>
-              <h4 class="text-base font-bold text-slate-800 mt-3">EcoPunto Parque Sagrado Corazón</h4>
-              <p class="text-xs text-slate-500 mt-1">📍 Parque Sagrado Corazón</p>
-              <p class="text-sm text-slate-600 mt-2"><strong>Acepta:</strong> Cartón, Papel de archivo y Plásticos.</p>
+            <!-- 3. Centro de Acopio Prado -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col justify-between">
+              <div>
+                <span class="text-[10px] font-bold uppercase tracking-wider bg-green-100 text-green-800 px-2.5 py-1 rounded-full">Norte-Centro Histórico</span>
+                <h4 class="text-base font-bold text-slate-800 mt-3">Centro de Acopio Prado</h4>
+                <p class="text-xs text-slate-500 mt-1.5 flex items-center gap-1.5">
+                  <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                  Ubicación: Cerca al sector residencial de El Prado
+                </p>
+              </div>
+              <p class="text-sm text-slate-600 mt-4">Acepta aceite de cocina usado y cartón.</p>
             </div>
 
-            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition">
-              <span class="text-[10px] font-bold uppercase tracking-wider bg-green-100 text-green-800 px-2.5 py-1 rounded-full">Suroriente</span>
-              <h4 class="text-base font-bold text-slate-800 mt-3">Estación Simón Bolívar</h4>
-              <p class="text-xs text-slate-500 mt-1">📍 Sector Canchas Simón Bolívar</p>
-              <p class="text-sm text-slate-600 mt-2"><strong>Acepta:</strong> Envases metálicos, Aluminio y Vidrio.</p>
+            <!-- 4. Punto Ecológico Parque de la Electrificadora -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col justify-between">
+              <div>
+                <span class="text-[10px] font-bold uppercase tracking-wider bg-green-100 text-green-800 px-2.5 py-1 rounded-full">Riomar</span>
+                <h4 class="text-base font-bold text-slate-800 mt-3">Punto Ecológico Parque de la Electrificadora</h4>
+                <p class="text-xs text-slate-500 mt-1.5 flex items-center gap-1.5">
+                  <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                  Ubicación: Cerca al Parque de la Electrificadora
+                </p>
+              </div>
+              <p class="text-sm text-slate-600 mt-4">Residuos domésticos reciclables limpios.</p>
             </div>
 
-            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition col-span-1 md:col-span-2 lg:col-span-1">
-              <span class="text-[10px] font-bold uppercase tracking-wider bg-green-100 text-green-800 px-2.5 py-1 rounded-full">Metropolitana</span>
-              <h4 class="text-base font-bold text-slate-800 mt-3">EcoPunto Metropolitano</h4>
-              <p class="text-xs text-slate-500 mt-1">📍 Cerca al Estadio Metropolitano</p>
-              <p class="text-sm text-slate-600 mt-2"><strong>Acepta:</strong> Todo tipo de materiales aprovechables.</p>
+            <!-- 5. EcoPunto Plaza de la Paz -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col justify-between">
+              <div>
+                <span class="text-[10px] font-bold uppercase tracking-wider bg-blue-100 text-blue-800 px-2.5 py-1 rounded-full">Centro</span>
+                <h4 class="text-base font-bold text-slate-800 mt-3">EcoPunto Plaza de la Paz</h4>
+                <p class="text-xs text-slate-500 mt-1.5 flex items-center gap-1.5">
+                  <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                  Ubicación: Cerca a la Plaza de la Paz (Zona Central)
+                </p>
+              </div>
+              <p class="text-sm text-slate-600 mt-4">Punto central de recolección de botellas PET y tapitas.</p>
+            </div>
+
+            <!-- 6. EcoPunto Éxito Metropolitano (Sur) -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col justify-between">
+              <div>
+                <span class="text-[10px] font-bold uppercase tracking-wider bg-orange-100 text-orange-800 px-2.5 py-1 rounded-full">Metropolitana / Sur</span>
+                <h4 class="text-base font-bold text-slate-800 mt-3">EcoPunto Éxito Metropolitano (Sur)</h4>
+                <p class="text-xs text-slate-500 mt-1.5 flex items-center gap-1.5">
+                  <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                  Ubicación: Cerca al Éxito del Estadio Metropolitano
+                </p>
+              </div>
+              <p class="text-sm text-slate-600 mt-4">Punto de recolección de envases PET, latas de aluminio y cartón aplanado.</p>
+            </div>
+
+            <!-- 7. Centro Comunitario de Reciclaje - La Paz -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col justify-between">
+              <div>
+                <span class="text-[10px] font-bold uppercase tracking-wider bg-purple-100 text-purple-800 px-2.5 py-1 rounded-full">Suroeste</span>
+                <h4 class="text-base font-bold text-slate-800 mt-3">Centro Comunitario de Reciclaje - La Paz</h4>
+                <p class="text-xs text-slate-500 mt-1.5 flex items-center gap-1.5">
+                  <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                  Ubicación: Cerca al Barrio La Paz (Sector Comunitario)
+                </p>
+              </div>
+              <p class="text-sm text-slate-600 mt-4">Proyecto de reciclaje de barrio. Acepta plásticos, papel de archivo y cartón.</p>
+            </div>
+
+            <!-- 8. EcoPunto CC Paseo de la Castellana (Centro) -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col justify-between">
+              <div>
+                <span class="text-[10px] font-bold uppercase tracking-wider bg-blue-100 text-blue-800 px-2.5 py-1 rounded-full">Centro Histórico</span>
+                <h4 class="text-base font-bold text-slate-800 mt-3">EcoPunto CC Paseo de la Castellana</h4>
+                <p class="text-xs text-slate-500 mt-1.5 flex items-center gap-1.5">
+                  <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                  Ubicación: Cerca al C.C. Paseo de la Castellana
+                </p>
+              </div>
+              <p class="text-sm text-slate-600 mt-4">Ideal para comerciantes. Recolección masiva de cartón, plástico film y papel.</p>
             </div>
 
           </div>
@@ -129,6 +255,7 @@ export function landingPage() {
       </div>
     </section>
 
+    <!-- CALL TO ACTION FINAL -->
     <section class="py-20 px-6 text-center bg-green-900 text-white">
       <div class="max-w-3xl mx-auto space-y-6">
         <h2 class="text-3xl md:text-4xl font-extrabold">¿Listo para marcar la diferencia en Barranquilla?</h2>
@@ -143,6 +270,7 @@ export function landingPage() {
       </div>
     </section>
 
+    <!-- FOOTER -->
     <footer class="bg-slate-900 text-slate-400 py-8 text-center text-sm border-t border-slate-800">
       <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4">
         <span>© 2026 EcoRuta BAQ. Proyecto académico para Riwi.</span>
