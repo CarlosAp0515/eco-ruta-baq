@@ -41,7 +41,7 @@ export function landingPage() {
           <a href="#/register" class="bg-green-700 hover:bg-green-800 text-white text-base font-bold px-8 py-4 rounded-2xl shadow-lg hover:shadow-xl transition-all">
             Empezar a Reciclar
           </a>
-          <a href="#/login" class="bg-white hover:bg-slate-50 text-slate-800 border border-slate-200 text-base font-bold px-8 py-4 rounded-2xl transition-all">
+          <a href="#/dashboard" class="bg-white hover:bg-slate-50 text-slate-800 border border-slate-200 text-base font-bold px-8 py-4 rounded-2xl transition-all">
             Ver Mi Dashboard
           </a>
         </div>
