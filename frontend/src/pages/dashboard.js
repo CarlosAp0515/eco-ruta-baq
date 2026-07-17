@@ -12,15 +12,29 @@ export function dashboardPage() {
     <!-- BARRA LATERAL (SIDEBAR) -->
     <aside class="w-64 bg-slate-900 text-slate-300 p-6 flex flex-col justify-between shrink-0">
       <div class="space-y-8">
-        <h2 class="text-xl font-extrabold text-white flex items-center gap-2">🌱 EcoRuta BAQ</h2>
+        <h2 class="text-xl font-extrabold text-white flex items-center gap-2">
+          <!-- Icono Planta Hojas SVG -->
+          <svg class="w-6 h-6 text-green-500 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-.778.099-1.533.284-2.253" />
+          </svg>
+          EcoRuta BAQ
+        </h2>
         
         <div class="space-y-1">
           <p class="text-xs font-bold uppercase tracking-wider text-slate-500 px-3 mb-2">Menú</p>
           <a href="#/dashboard" class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-green-800 text-white font-semibold">
-            📊 Mi Panel
+            <!-- Icono Panel/Métricas SVG -->
+            <svg class="w-5 h-5 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
+            </svg>
+            Mi Panel
           </a>
           <a href="#/" class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-800 hover:text-white transition">
-            🏠 Volver a Inicio
+            <!-- Icono Casa SVG -->
+            <svg class="w-5 h-5 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+            </svg>
+            Volver a Inicio
           </a>
         </div>
       </div>
@@ -101,18 +115,33 @@ function renderUserDashboard() {
     <div class="lg:col-span-2 bg-gradient-to-br from-green-800 to-green-950 text-white p-8 rounded-3xl shadow-lg space-y-6 flex flex-col justify-between">
       <div>
         <span class="bg-white/20 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">Manual Express</span>
-        <h3 class="text-2xl font-extrabold mt-4">¿Cómo entregar tus materiales? 📚</h3>
+        <h3 class="text-2xl font-extrabold mt-4 flex items-center gap-2">
+          ¿Cómo entregar tus materiales?
+          <!-- Icono Libro Abierto SVG -->
+          <svg class="w-6 h-6 text-green-300 inline shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+          </svg>
+        </h3>
         <ul class="mt-4 space-y-3.5 text-green-100 text-sm">
-          <li class="flex items-start gap-2">
-            <span>🟢</span> 
+          <li class="flex items-start gap-3">
+            <!-- Check Circular Verde SVG -->
+            <svg class="w-5 h-5 text-green-400 mt-0.5 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
             <span><strong>Plásticos, Cartón y Vidrio:</strong> Deben estar totalmente secos y limpios. Aplasta las cajas y botellas para optimizar su espacio de transporte.</span>
           </li>
-          <li class="flex items-start gap-2">
-            <span>🟢</span> 
+          <li class="flex items-start gap-3">
+            <!-- Check Circular Verde SVG -->
+            <svg class="w-5 h-5 text-green-400 mt-0.5 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
             <span><strong>Aceite de Cocina Usado:</strong> Fíltralo frío para retirar residuos de comida y viértelo en una botella plástica limpia con tapa segura.</span>
           </li>
-          <li class="flex items-start gap-2">
-            <span>🟢</span> 
+          <li class="flex items-start gap-3">
+            <!-- Check Circular Verde SVG -->
+            <svg class="w-5 h-5 text-green-400 mt-0.5 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
             <span><strong>Pilas y Electrónicos (RAEE):</strong> Entrégalas sin fisuras ni corrosión para evitar accidentes químicos en los centros de acopio.</span>
           </li>
         </ul>
@@ -153,7 +182,12 @@ function renderAdminDashboard() {
     <!-- Barra de Búsquedas y Filtros -->
     <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row gap-4 items-center justify-between">
       <div class="relative w-full sm:w-72">
-        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">🔍</span>
+        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+          <!-- Icono Lupa SVG -->
+          <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+          </svg>
+        </span>
         <input id="adminSearchInput" type="text" placeholder="Buscar por nombre o correo..." 
           class="w-full pl-9 pr-4 py-2 text-sm rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
       </div>

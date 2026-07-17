@@ -1,56 +1,71 @@
-
+// src/services/landingService.js
 
 export function initLandingPage() {
-    // ---- VERIFICACIÓN DE SESIÓN EN LA LANDING ----
-    const currentUser = JSON.parse(localStorage.getItem("current_user"));
-    const navActions = document.querySelector("nav .flex.items-center.gap-4");
+  console.log("🌱 Inicializando mapa en la Landing Page con iconos modernos...");
+  setupLandingMap();
+}
 
-    if (currentUser && navActions) {
-        // Si ya está logueado, cambiamos "Iniciar Sesión" por "Ir a mi Panel"
-        navActions.innerHTML = `
-          <span class="text-sm text-slate-600 font-bold hidden sm:inline">Hola, ${currentUser.name}</span>
-          <a href="#/dashboard" class="bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition-all">
-            Ir a mi Panel 📊
-          </a>
-        `;
-    }
+function setupLandingMap() {
+  const mapElement = document.getElementById("landingMap") || document.getElementById("map");
+  if (!mapElement) {
+    console.warn("⚠️ Contenedor de mapa no encontrado en el Landing.");
+    return;
+  }
 
-    // ---- LÓGICA DEL MAPA ----
-    const landingMapContainer = document.getElementById("landingMap");
-    if (!landingMapContainer) return;
+  // Evitamos inicializaciones duplicadas
+  if (mapElement._leaflet_id) {
+    return;
+  }
 
-    import("https://unpkg.com/leaflet@1.9.4/dist/leaflet-src.esm.js")
-        .then((L) => {
-            const barranquillaCoords = [10.9878, -74.8000];
-            const map = L.map('landingMap').setView(barranquillaCoords, 12);
+  // Coordenadas centrales estratégicas para Barranquilla
+  const barranquillaCoords = [10.9639, -74.7964];
 
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors'
-            }).addTo(map);
+  if (typeof L === 'undefined') {
+    const script = document.createElement('script');
+    script.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
+    script.onload = () => buildLandingMapInstance(barranquillaCoords);
+    document.head.appendChild(script);
+  } else {
+    buildLandingMapInstance(barranquillaCoords);
+  }
+}
 
-            const locations = [
-                { localidad: "Riomar", name: "Centro de Acopio Buenavista", coords: [11.0142, -74.8115], desc: "Recibe: Plásticos (PET/PEAD), Vidrio y Cartón." },
-                { localidad: "Norte-Centro Histórico", name: "Punto Verde Parque Venezuela", coords: [11.0068, -74.8150], desc: "Recibe: Pilas, Baterías, Aceite de Cocina y RAEE." },
-                { localidad: "Suroeste", name: "EcoPunto Parque Sagrado Corazón", coords: [10.9855, -74.7888], desc: "Recibe: Cartón, Papel de archivo y Plásticos." },
-                { localidad: "Suroriente", name: "Estación de Reciclaje Simón Bolívar", coords: [10.9520, -74.7750], desc: "Recibe: Envases metálicos, Aluminio y Vidrio." },
-                { localidad: "Metropolitana", name: "EcoPunto Metropolitano", coords: [10.9380, -74.8020], desc: "Recibe: Todo tipo de materiales aprovechables." }
-            ];
+function buildLandingMapInstance(coords) {
+  try {
+    const mapId = document.getElementById("landingMap") ? "landingMap" : "map";
+    
+    // Zoom ajustado a 12 para dar cobertura completa desde el Norte hasta el Estadio Metropolitano en el Sur
+    const map = L.map(mapId).setView(coords, 12);
 
-            locations.forEach(loc => {
-                L.marker(loc.coords)
-                    .addTo(map)
-                    .bindPopup(`
-                        <div class="p-1">
-                            <span class="text-[10px] font-bold uppercase tracking-wider bg-green-100 text-green-800 px-2 py-0.5 rounded-full">${loc.localidad}</span>
-                            <h4 class="text-sm font-bold text-slate-800 mt-1.5">${loc.name}</h4>
-                            <p class="text-xs text-slate-600 mt-1">${loc.desc}</p>
-                            ${currentUser 
-                                ? `<a href="#/dashboard" class="inline-block text-[11px] text-green-700 font-bold mt-2 hover:underline">📋 Registrar entrega en mi panel &rarr;</a>`
-                                : `<a href="#/register" class="inline-block text-[11px] text-green-700 font-bold mt-2 hover:underline">✨ Regístrate para sumar puntos aquí &rarr;</a>`
-                            }
-                        </div>
-                    `);
-            });
-        })
-        .catch(err => console.error("No se pudo cargar el mapa del landing:", err));
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Los 8 puntos unificados y sincronizados
+    const points = [
+      { name: "EcoPunto Parque Venezuela", coords: [11.0089, -74.8143], desc: "Acepta plásticos, papel y vidrio." },
+      { name: "Punto Verde CC Buenavista", coords: [11.0135, -74.8219], desc: "Especializado en pilas, baterías y residuos RAEE." },
+      { name: "Centro de Acopio Prado", coords: [10.9902, -74.7952], desc: "Acepta aceite de cocina usado y cartón." },
+      { name: "Punto Ecológico Parque de la Electrificadora", coords: [11.0163, -74.8122], desc: "Residuos domésticos reciclables limpios." },
+      { name: "EcoPunto Plaza de la Paz", coords: [10.9878, -74.7889], desc: "Punto central de recolección de botellas PET y tapitas." },
+      { name: "EcoPunto Éxito Metropolitano (Sur)", coords: [10.9255, -74.7995], desc: "Punto de recolección de envases PET, latas de aluminio y cartón aplanado." },
+      { name: "Centro Comunitario de Reciclaje - La Paz", coords: [10.9715, -74.8315], desc: "Proyecto de reciclaje de barrio. Acepta plásticos, papel de archivo y cartón." },
+      { name: "EcoPunto Centro Comercial Paseo de la Castellana (Centro)", coords: [10.9805, -74.7795], desc: "Ideal para comerciantes. Recolección masiva de cartón, plástico film y papel." }
+    ];
+
+    // Pintar los 8 marcadores con popup de diseño minimalista
+    points.forEach(p => {
+      L.marker(p.coords)
+        .addTo(map)
+        .bindPopup(`
+          <div style="font-family: sans-serif; min-width: 160px;">
+            <b style="color: #15803d; font-size: 13px; display: block; margin-bottom: 2px;">${p.name}</b>
+            <p style="margin: 0; font-size: 11px; color: #475569; line-height: 1.3;">${p.desc}</p>
+          </div>
+        `);
+    });
+
+  } catch (error) {
+    console.error("Error al inicializar el mapa de la Landing Page:", error);
+  }
 }

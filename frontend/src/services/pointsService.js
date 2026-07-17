@@ -19,25 +19,26 @@ const POINTS_MAPPING = {
 };
 
 // Datos para el Modal de Canje de Productos
+// Datos para el Modal de Canje de Productos (en src/services/pointsService.js)
 const REDEEM_DETAILS = {
   10: {
     title: "Bono 10% Descuento Alkosto",
     pointsNeeded: 500,
     products: [
-      "⚡ Pilas recargables (Duracell / Energizer)",
-      "💡 Bombillos LED ahorradores de energía",
-      "🔋 Powerbanks (Baterías portátiles de carga ecológica)",
-      "🔌 Multitomas con supresor de picos"
+      "Pilas recargables (Duracell / Energizer)",
+      "Bombillos LED ahorradores de energía",
+      "Powerbanks (Baterías portátiles eco)",
+      "Multitomas con supresor de picos"
     ]
   },
   20: {
     title: "Bono 20% Descuento Alkosto",
     pointsNeeded: 1000,
     products: [
-      "🚲 Bicicletas convencionales y patinetas eléctricas",
-      "🔋 Baterías de repuesto para vehículos híbridos",
-      "🧊 Electrodomésticos con certificación energética tipo A",
-      "☀️ Paneles y reflectores solares pequeños para jardín"
+      "Bicicletas convencionales y patinetas eléctricas",
+      "Baterías de repuesto para vehículos híbridos",
+      "Electrodomésticos con certificación energética Tipo A",
+      "Paneles y reflectores solares pequeños para jardín"
     ]
   }
 };
@@ -130,25 +131,73 @@ function setupInteractiveMap() {
 
 function buildMapInstance(coords) {
   try {
-    const map = L.map('map').setView(coords, 13);
+    // 1. Inicializar el mapa centrado en Barranquilla
+    const map = L.map('map').setView(coords, 12);
 
+    // 2. Cargar la capa de diseño visual (OpenStreetMap)
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
-    // Puntos de recolección en Barranquilla
-    const points = [
-      { name: "EcoPunto Parque Venezuela", coords: [11.0089, -74.8143], desc: "Acepta plásticos, papel y vidrio." },
-      { name: "Punto Verde CC Buenavista", coords: [11.0135, -74.8219], desc: "Especializado en pilas, baterías y residuos RAEE." },
-      { name: "Centro de Acopio Prado", coords: [10.9902, -74.7952], desc: "Acepta aceite de cocina usado y cartón." },
-      { name: "Punto Ecológico Parque de la Electrificadora", coords: [11.0163, -74.8122], desc: "Residuos domésticos reciclables limpios." }
-    ];
+    // 3. Puntos de recogida sincronizados
+const points = [
 
+  { 
+    name: "EcoPunto Parque Venezuela", 
+    coords: [11.0089, -74.8143], 
+    desc: "Acepta plásticos, papel y vidrio." 
+  },
+  { 
+    name: "Punto Verde CC Buenavista", 
+    coords: [11.0135, -74.8219], 
+    desc: "Especializado en pilas, baterías y residuos RAEE." 
+  },
+  { 
+    name: "Centro de Acopio Prado", 
+    coords: [10.9902, -74.7952], 
+    desc: "Acepta aceite de cocina usado y cartón." 
+  },
+  { 
+    name: "Punto Ecológico Parque de la Electrificadora", 
+    coords: [11.0163, -74.8122], 
+    desc: "Residuos domésticos reciclables limpios." 
+  },
+  { 
+    name: "EcoPunto Plaza de la Paz", 
+    coords: [10.9878, -74.7889], 
+    desc: "Punto central de recolección de botellas PET y tapitas." 
+  },
+
+  // --- NUEVAS ZONAS: SUR, SUROCCIDENTE Y CENTRO (Agregados) ---
+  { 
+    name: "EcoPunto Éxito Metropolitano (Sur)", 
+    coords: [10.9255, -74.7995], 
+    desc: "Punto de recolección de envases PET, latas de aluminio y cartón aplanado." 
+  },
+  { 
+    name: "Centro Comunitario de Reciclaje - La Paz", 
+    coords: [10.9715, -74.8315], 
+    desc: "Proyecto de reciclaje de barrio. Acepta plásticos, papel de archivo y cartón." 
+  },
+  { 
+    name: "EcoPunto Centro Comercial Paseo de la Castellana (Centro)", 
+    coords: [10.9805, -74.7795], 
+    desc: "Ideal para comerciantes. Recolección masiva de cartón, plástico film y papel." 
+  }
+];
+
+    // 4. Recorrer el arreglo y añadir cada marcador manualmente al mapa
     points.forEach(p => {
       L.marker(p.coords)
         .addTo(map)
-        .bindPopup(`<b>${p.name}</b><br>${p.desc}`);
+        .bindPopup(`
+          <div style="font-family: sans-serif;">
+            <b style="color: #15803d; font-size: 14px;">${p.name}</b>
+            <p style="margin: 4px 0 0 0; font-size: 12px; color: #475569;">${p.desc}</p>
+          </div>
+        `);
     });
+
   } catch (error) {
     console.error("Error inicializando mapa de Leaflet:", error);
   }
@@ -258,7 +307,7 @@ function setupUserRegistrationForm(currentUser) {
   };
 }
 
-// 🎟️ CONTROLES DEL MODAL DE REDENCIÓN (PRODUCTOS APLICABLES)
+//  CONTROLES DEL MODAL DE REDENCIÓN (PRODUCTOS APLICABLES)
 function setupRedeemModalHandlers(currentUser) {
   const btn10 = document.getElementById("btnRedeem10");
   const btn20 = document.getElementById("btnRedeem20");
@@ -269,14 +318,23 @@ function setupRedeemModalHandlers(currentUser) {
 
   if (!redeemModal || !confirmBtn) return;
 
-  const openRedeem = (discountType) => {
+const openRedeem = (discountType) => {
     const data = REDEEM_DETAILS[discountType];
     currentPendingRedeem = { type: discountType, ...data };
 
-    document.getElementById("redeemModalTitle").textContent = `🎟️ ${data.title}`;
+    document.getElementById("redeemModalTitle").textContent = `🎟️ ${data.title}`; // Opcional: Reemplaza por SVG si prefieres vaciar el texto o dejarlo limpio.
     
     const listElement = document.getElementById("redeemProductList");
-    listElement.innerHTML = data.products.map(p => `<li>${p}</li>`).join("");
+    
+    // Inyección de item con icono SVG moderno de check verde
+    listElement.innerHTML = data.products.map(p => `
+      <li class="flex items-center gap-2 py-1">
+        <svg class="w-4 h-4 text-green-600 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+        </svg>
+        <span>${p}</span>
+      </li>
+    `).join("");
 
     redeemModal.classList.remove("hidden");
   };
