@@ -18,10 +18,10 @@ export function landingPage() {
       </div>
     </nav>
 
-    <header class="bg-gradient-to-b from-green-50 to-slate-50 py-20 px-6 border-b border-slate-100">
+    <header class="bg-gradient-to-b from-green-50 to-slate-50 py-30 px-6 border-b border-slate-100">
       <div class="max-w-4xl mx-auto text-center space-y-6">
-        <span class="bg-green-100 text-green-800 font-bold uppercase text-xs tracking-wider px-3.5 py-1.5 rounded-full">
-          ¡Hola, Barranquilla! 🇨🇴
+        <span class="bg-yellow-400 text-white font-bold uppercase text-xs tracking-wider px-3.5 py-1.5 rounded-full">
+          ¡Hola, Barranquilla!
         </span>
         <h1 class="text-4xl md:text-6xl font-extrabold text-slate-900 tracking-tight leading-tight">
           Recicla tus residuos cotidianos y <span class="text-green-700">gana recompensas</span>
@@ -63,6 +63,36 @@ export function landingPage() {
           <div class="text-3xl bg-orange-50 w-12 h-12 flex items-center justify-center rounded-xl">🎟️</div>
           <h3 class="text-xl font-bold text-slate-900">3. ¡Gana Recompensas!</h3>
           <p class="text-slate-600">Por cada kilogramo o unidad de desecho, sumas puntos directos a tu cuenta canjeables por bonos de descuento.</p>
+        </div>
+      </div>
+    </section>
+
+      <!-- GUÍA DE RECICLAJE EN EL LANDING -->
+    <section class="py-20 bg-white">
+      <div class="max-w-6xl mx-auto px-6">
+        <div class="text-center space-y-2 mb-16">
+          <span class="bg-green-100 text-green-800 font-bold uppercase text-xs tracking-wider px-3 py- rounded-full">Manual Práctico</span>
+          <h2 class="text-3xl font-extrabold text-slate-900">¿Cómo preparar tus residuos para entrega?</h2>
+          <p class="text-slate-500 max-w-xl mx-auto">Sigue estos lineamientos ecológicos para asegurar que tus materiales clasifiquen para ganar puntos.</p>
+        </div>
+    
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div class="space-y-3 border-l-2 border-green-500 pl-4">
+            <h4 class="font-bold text-lg text-slate-800">1. Botellas de Plástico</h4>
+            <p class="text-sm text-slate-600">Vacía el contenido, enjuágalas para retirar azúcares, aplástalas para ahorrar espacio y colócales su tapa.</p>
+          </div>
+          <div class="space-y-3 border-l-2 border-blue-500 pl-4">
+            <h4 class="font-bold text-lg text-slate-800">2. Cartones y Papel</h4>
+            <p class="text-sm text-slate-600">Desarma las cajas para dejarlas planas. Asegúrate de que no tengan grasa de comida, pintura o aceites.</p>
+          </div>
+          <div class="space-y-3 border-l-2 border-yellow-500 pl-4">
+            <h4 class="font-bold text-lg text-slate-800">3. Aceite Usado</h4>
+            <p class="text-sm text-slate-600">Espera que se enfríe, pásalo por un colador para quitarle residuos de comida y almacénalo en una botella plástica limpia.</p>
+          </div>
+          <div class="space-y-3 border-l-2 border-red-500 pl-4">
+            <h4 class="font-bold text-lg text-slate-800">4. Pilas y Electrónicos</h4>
+            <p class="text-sm text-slate-600">Recubre las terminales con cinta adhesiva transparente si están deterioradas para evitar corrosión química cruzada.</p>
+          </div>
         </div>
       </div>
     </section>

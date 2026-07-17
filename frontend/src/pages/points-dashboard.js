@@ -12,7 +12,7 @@ export function pointsDashboardPage() {
         <a href="#/" class="text-2xl font-bold text-green-700 hover:opacity-80 transition">🌱 EcoRuta BAQ</a>
         <div class="flex items-center gap-4">
           <span id="userNameDisplay" class="text-sm text-slate-600 font-bold">Hola, Usuario</span>
-          <button id="btnLogout" class="text-sm text-red-600 hover:underline font-semibold">Cerrar Sesión</button>
+          <button id="btnLogout" class="bg-red-600 hover:bg-red-900 rounded-xl px-5 py-1 text-m text-white font-bold cursor-pointer">Cerrar Sesión</button>
         </div>
       </div>
     </nav>
@@ -42,10 +42,10 @@ export function pointsDashboardPage() {
             <p class="text-sm font-medium text-slate-500 uppercase tracking-wider">Mis Puntos Disponibles</p>
             <h3 id="totalPointsDisplay" class="text-4xl font-bold text-green-700 mt-2">0 pts</h3>
           </div>
-          <div class="text-4xl bg-green-50 p-4 rounded-xl">⭐️</div>
+          <div class="text-4xl bg-green-50 p-4 rounded-xl">⭐</div>
         </div>
 
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
+        <div class="bg-white p-2 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
           <div>
             <p class="text-sm font-medium text-slate-500 uppercase tracking-wider">Peso Reciclado (Este Periodo)</p>
             <h3 id="totalWeightDisplay" class="text-4xl font-bold text-slate-800 mt-2">0 kg</h3>
@@ -63,6 +63,40 @@ export function pointsDashboardPage() {
           <div class="text-4xl bg-orange-50 p-4 rounded-xl">🎟️</div>
         </div>
       </div>
+
+      <!-- GUÍA DETALLADA DE RECICLAJE (NUEVA SECCIÓN) -->
+      <section class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 space-y-6">
+        <div class="border-b pb-3">
+          <h3 class="text-xl font-bold text-slate-800 flex items-center gap-2">📖 Guía de Preparación de Residuos</h3>
+          <p class="text-sm text-slate-500">Asegura tus puntos preparando tus materiales correctamente antes de llevarlos al punto físico.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-100 space-y-3">
+            <span class="text-2xl">🧼</span>
+            <h4 class="font-bold text-slate-800 text-base">1. Limpiar y Secar</h4>
+            <p class="text-xs text-slate-600 leading-relaxed">
+              Enjuaga envases plásticos, frascos de vidrio y cajas de tetrapak. Los residuos con grasa u hongos arruinan lotes enteros de reciclaje. ¡Déjalos secar completamente!
+            </p>
+          </div>
+
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-100 space-y-3">
+            <span class="text-2xl">📦</span>
+            <h4 class="font-bold text-slate-800 text-base">2. Reducir Espacio</h4>
+            <p class="text-xs text-slate-600 leading-relaxed">
+              Compacta las botellas de plástico sacándoles el aire y vuelve a taparlas. Desarma y aplana las cajas de cartón. Optimizar el espacio facilita el transporte en Barranquilla.
+            </p>
+          </div>
+
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-100 space-y-3">
+            <span class="text-2xl">🔒</span>
+            <h4 class="font-bold text-slate-800 text-base">3. Separar y Envasar</h4>
+            <p class="text-xs text-slate-600 leading-relaxed">
+              No mezcles materiales. Envasa el aceite usado de cocina en botellas plásticas bien selladas (nunca de vidrio). Guarda pilas y baterías en bolsas secas de forma independiente.
+            </p>
+          </div>
+        </div>
+      </section>
 
       <!-- SECCIÓN DEL MAPA INTERACTIVO (BARRANQUILLA) -->
       <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 space-y-4">
@@ -143,7 +177,6 @@ export function pointsDashboardPage() {
         </div>
 
         <form id="deliveryForm" class="space-y-4">
-          <!-- ID Oculto para cuando estemos editando -->
           <input type="hidden" id="editIndex" value="">
 
           <div>
@@ -182,6 +215,40 @@ export function pointsDashboardPage() {
             Guardar Entrega y Sumar Puntos
           </button>
         </form>
+      </div>
+    </div>
+
+    <!-- MODAL DE PRODUCTOS APLICABLES PARA CANJE (NUEVO) -->
+    <div id="redeemModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 space-y-6">
+        <div class="flex justify-between items-center border-b pb-3">
+          <h3 id="redeemModalTitle" class="text-xl font-bold text-slate-800">🎟️ Recompensa Alkosto</h3>
+          <button id="btnCloseRedeemModal" class="text-slate-400 hover:text-slate-600 text-2xl">&times;</button>
+        </div>
+        
+        <div class="space-y-4">
+          <p class="text-sm text-slate-600">
+            Este cupón de descuento aplica exclusivamente para los siguientes productos seleccionados en las sedes físicas de Barranquilla:
+          </p>
+          
+          <ul id="redeemProductList" class="space-y-2 text-sm font-semibold text-slate-700 bg-slate-50 p-4 rounded-xl border">
+            <!-- Dinámico -->
+          </ul>
+
+          <div class="bg-green-50 border border-green-100 p-3 rounded-xl text-xs text-green-800 flex flex-col gap-1">
+            <span class="font-bold">¿Cómo redimirlo?</span>
+            <span>Presenta el código generado en la caja del almacén junto con tu documento de identidad.</span>
+          </div>
+        </div>
+
+        <div class="flex gap-3 justify-end">
+          <button id="btnCancelRedeem" class="px-4 py-2 border rounded-xl font-semibold text-slate-500 hover:bg-slate-50 text-sm">
+            Cancelar
+          </button>
+          <button id="btnConfirmRedeem" class="px-4 py-2 bg-green-700 hover:bg-green-800 text-white rounded-xl font-bold text-sm">
+            Confirmar Canje
+          </button>
+        </div>
       </div>
     </div>
 
