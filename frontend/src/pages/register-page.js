@@ -4,7 +4,7 @@ export function registerPage() {
   return `
   <div class="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
     <div class="sm:mx-auto sm:w-full sm:max-w-md text-center">
-      <a href="#/" class="text-3xl font-extrabold text-green-700">🌱 EcoRuta BAQ</a>
+      <a href="#/" class="text-3xl font-extrabold text-green-700"> EcoRuta BAQ</a>
       <h2 class="mt-6 text-3xl font-extrabold text-slate-900">Crea tu cuenta</h2>
       <p class="mt-2 text-sm text-slate-600">
         ¿Ya tienes cuenta?
