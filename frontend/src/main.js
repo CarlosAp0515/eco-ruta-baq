@@ -1,10 +1,10 @@
-// src/main.js
-
 import './style.css';
 import { landingPage } from './pages/landing.js';
 import { loginPage } from './pages/login.js'; 
 import { registerPage } from './pages/register-page.js'; 
+import { dashboardPage, initDashboard } from './pages/dashboard.js'; 
 import { loginUser, registerUser } from './services/authService.js'; 
+import { adminDashboardPage, initAdminDashboard } from './pages/adminDashboard.js';
 
 function router() {
   const appElement = document.getElementById('app');
@@ -15,26 +15,86 @@ function router() {
   try {
     if (hash === '#/' || hash === '') {
       appElement.innerHTML = typeof landingPage === 'function' ? landingPage() : '';
-      if (document.getElementById('landingMap')) {
-        initLandingMap();
+      
+      const currentUser = JSON.parse(localStorage.getItem("current_user"));
+      if (currentUser) {
+        const navContainer = document.querySelector('nav .max-w-7xl > div:last-child');
+        if (navContainer) {
+          // Si es admin, el botón del Navbar lo lleva a su panel correspondiente
+          const targetDashboard = currentUser.role === 'admin' ? '#/admin-dashboard' : '#/dashboard';
+          
+          navContainer.innerHTML = `
+            <div class="flex items-center gap-4">
+              <span class="text-sm font-medium text-slate-700">
+                Hola, <b class="text-green-700">${currentUser.name}</b> ${currentUser.role === 'admin' ? ' (💼 Admin)' : ''}
+              </span>
+              <a href="${targetDashboard}" class="bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-xl text-sm font-bold transition-all">
+                Mi Dashboard
+              </a>
+              <button id="logoutBtn" class="bg-red-50 hover:bg-red-100 text-red-600 px-4 py-2 rounded-xl text-sm font-bold border border-red-200 transition-all cursor-pointer">
+                Cerrar Sesión
+              </button>
+            </div>
+          `;
+          
+          document.getElementById('logoutBtn').addEventListener('click', () => {
+            localStorage.removeItem('current_user');
+            window.location.hash = '#/login';
+          });
+        }
       }
+
+      setTimeout(() => {
+        if (document.getElementById('landingMap')) {
+          initLandingMap();
+        }
+      }, 50);
+
     } else if (hash === '#/login') {
       appElement.innerHTML = typeof loginPage === 'function' ? loginPage() : '';
       loginUser(); 
     } else if (hash === '#/register') {
-      // Inyección directa y segura de tu string de HTML limpio
       appElement.innerHTML = registerPage();
-      
-      // Listeners para y el submit
       registerUser(); 
+    } else if (hash === '#/admin-dashboard') {
+      // NUEVA RUTA DEL ADMINISTRADOR
+      const currentUser = JSON.parse(localStorage.getItem("current_user"));
+      if (!currentUser || currentUser.role !== 'admin') {
+        window.location.hash = '#/login';
+        return;
+      }
+
+      appElement.innerHTML = typeof adminDashboardPage === 'function' ? adminDashboardPage() : '';
+      initAdminDashboard();
+
     } else if (hash === '#/dashboard') {
-      appElement.innerHTML = `
-        <div class="min-h-screen bg-slate-50 p-6">
-          <h1 class="text-2xl font-bold text-slate-900">Dashboard EcoRuta BAQ</h1>
-          <p class="text-slate-600">Panel de control y estadísticas del usuario.</p>
-          <div class="mt-4"><a href="#/" class="text-green-700 font-bold">← Volver a la Landing</a></div>
-        </div>
-      `;
+      const currentUser = JSON.parse(localStorage.getItem("current_user"));
+      if (!currentUser) {
+        window.location.hash = '#/login';
+        return;
+      }
+
+      // Si un admin intenta entrar aquí por error, lo mandamos a su panel administrativo
+      if (currentUser.role === 'admin') {
+        window.location.hash = '#/admin-dashboard';
+        return;
+      }
+
+      // Renderiza la vista horizontal completa del dashboard con mapa y guía de reciclaje
+      appElement.innerHTML = typeof dashboardPage === 'function' ? dashboardPage() : '';
+      
+      // Inicia el CRUD, mapa interno de Barranquilla y acordeones
+      initDashboard();
+
+      // Botón cerrar sesión del panel superior
+      const sidebarLogoutBtn = document.getElementById('logoutBtn');
+      if (sidebarLogoutBtn) {
+        sidebarLogoutBtn.addEventListener('click', () => {
+          localStorage.removeItem('current_user');
+          window.location.hash = '#/login';
+        });
+      }
+
     } else {
       appElement.innerHTML = landingPage();
     }
@@ -46,6 +106,12 @@ function router() {
 
 function initLandingMap() {
   if (typeof L === 'undefined') return;
+  
+  const container = L.DomUtil.get('landingMap');
+  if (container != null) {
+    container._leaflet_id = null;
+  }
+
   const map = L.map('landingMap').setView([10.9685, -74.7813], 13);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; OpenStreetMap contributors'
@@ -63,7 +129,8 @@ function initData() {
   if (!localStorage.getItem('eco_puntos')) {
     const puntosBarranquilla = [
       { id: 1, nombre: "EcoPunto Parque Venezuela", lat: 11.0094, lng: -74.8123, tipo: "Plásticos y Vidrio" },
-      { id: 2, nombre: "Punto Verde CC Buenavista", lat: 11.0125, lng: -74.8168, tipo: "Pilas y Electrónicos RAEE" }
+      { id: 2, nombre: "Punto Verde CC Buenavista", lat: 11.0125, lng: -74.8168, tipo: "Pilas y Electrónicos RAEE" },
+      { id: 3, nombre: "Centro de Acopio Prado", lat: 10.9934, lng: -74.7962, tipo: "Aceite de cocina y Cartón" }
     ];
     localStorage.setItem('eco_puntos', JSON.stringify(puntosBarranquilla));
   }

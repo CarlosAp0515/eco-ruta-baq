@@ -2,238 +2,437 @@
 
 export function dashboardPage() {
   const currentUser = JSON.parse(localStorage.getItem("current_user"));
-  if (!currentUser) return `<p class="p-8">Cargando...</p>`;
-
-  const isAdmin = currentUser.role === "admin";
+  if (!currentUser) return `<p class="p-4 sm:p-8">Cargando...</p>`;
 
   return `
-  <div class="min-h-screen bg-slate-50 flex">
+  <!-- ESTILOS INYECTADOS PARA ANIMACIONES Y AJUSTES DE LEAFLET -->
+  <style>
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-toast {
+      animation: fadeIn 0.3s ease-out forwards;
+    }
+    .leaflet-popup-content {
+      font-family: ui-sans-serif, system-ui, sans-serif !important;
+      font-size: 13px !important;
+      line-height: 1.4 !important;
+    }
+  </style>
+
+  <div class="min-h-screen bg-slate-50 font-sans antialiased text-slate-800 relative">
     
-    <!-- BARRA LATERAL (SIDEBAR) -->
-    <aside class="w-64 bg-slate-900 text-slate-300 p-6 flex flex-col justify-between shrink-0">
-      <div class="space-y-8">
-        <h2 class="text-xl font-extrabold text-white flex items-center gap-2">
-          <!-- Icono Planta Hojas SVG -->
-          <svg class="w-6 h-6 text-green-500 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-.778.099-1.533.284-2.253" />
-          </svg>
-          EcoRuta BAQ
-        </h2>
+    <!-- CONTENEDOR PARA NOTIFICACIONES FLOTANTES (RESPONSIVE TOASTS) -->
+    <div id="notificationContainer" class="fixed top-4 right-4 left-4 sm:left-auto sm:w-96 z-50 space-y-3 pointer-events-none"></div>
+
+    <!-- NAVBAR SUPERIOR RESPONSIVE -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-xs">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
+        <div class="flex items-center gap-3 sm:gap-6">
+          <div class="flex items-center gap-2 shrink-0">
+          <img src="./src/assets/IconoEcoruta.png" alt="EcoRuta BAQ Logo" class="w-20 h-20 object-contain shrink-0">    
+            <span class="text-lg sm:text-2xl font-extrabold text-green-800 tracking-tight shrink-0">EcoRuta BAQ</span>
+          </div>
+          <nav class="hidden md:flex items-center gap-4">
+            <a href="#/" class="text-sm font-bold text-slate-500 hover:text-green-700 transition-colors">← Volver al Inicio</a>
+          </nav>
+        </div>
         
-        <div class="space-y-1">
-          <p class="text-xs font-bold uppercase tracking-wider text-slate-500 px-3 mb-2">Menú</p>
-          <a href="#/dashboard" class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-green-800 text-white font-semibold">
-            <!-- Icono Panel/Métricas SVG -->
-            <svg class="w-5 h-5 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
-            </svg>
-            Mi Panel
-          </a>
-          <a href="#/" class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-800 hover:text-white transition">
-            <!-- Icono Casa SVG -->
-            <svg class="w-5 h-5 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
-            </svg>
-            Volver a Inicio
-          </a>
+        <div class="flex items-center gap-3 sm:gap-4 ml-auto text-right">
+          <span class="text-xs sm:text-sm font-medium text-slate-700 truncate max-w-[120px] sm:max-w-none">
+            Hola, <b class="text-slate-900">${currentUser.name}</b>
+          </span>
+          <button id="logoutBtn" class="text-xs sm:text-sm font-bold text-red-600 hover:text-red-700 transition-colors cursor-pointer shrink-0">
+            Salir
+          </button>
         </div>
       </div>
-
-      <!-- Información del Usuario en Sesión -->
-      <div class="border-t border-slate-800 pt-4">
-        <p class="text-sm font-bold text-white mb-1">${currentUser.name}</p>
-        <span class="text-[10px] uppercase px-2 py-0.5 rounded-md font-bold ${isAdmin ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-green-500/20 text-green-400 border border-green-500/30'}">
-          ${isAdmin ? 'Administrador' : 'Reciclador'}
-        </span>
-        <button id="logoutBtn" class="w-full mt-4 bg-red-500/10 hover:bg-red-500/20 text-white font-bold py-2 rounded-xl border border-red-500/20 transition-colors">
-          Cerrar Sesión
-        </button>
-      </div>
-    </aside>
+    </header>
 
     <!-- CONTENIDO PRINCIPAL -->
-    <main class="flex-1 p-8 overflow-y-auto">
-      <header class="mb-8">
-        <h1 class="text-3xl font-extrabold text-slate-900">
-          ${isAdmin ? 'Consola de Administración' : 'Panel del Reciclador'}
-        </h1>
-        <p class="text-slate-500">
-          ${isAdmin ? 'Monitoreo global de usuarios, entregas y estadísticas en Barranquilla' : 'Registra tus materiales reciclados y acumula puntos'}
-        </p>
-      </header>
-
-      <!-- CARGA DINÁMICA DE LA INTERFAZ SEGÚN EL ROL -->
-      ${isAdmin ? renderAdminDashboard() : renderUserDashboard()}
-    </main>
-  </div>
-  `;
-}
-
-// ------------------- VISTA PARA EL RECIclADOR COMÚN (USER) -------------------
-function renderUserDashboard() {
-  return `
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-    
-    <!-- Formulario Exclusivo para el Usuario -->
-    <div class="lg:col-span-1 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-      <h3 class="text-lg font-bold text-slate-900">Registrar Nueva Entrega</h3>
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-6 sm:space-y-8">
       
-      <div id="deliveryMessage" class="hidden p-3 text-xs font-semibold rounded-xl border"></div>
-
-      <form id="recordForm" class="space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4 sm:pb-0 sm:border-none">
         <div>
-          <label for="materialType" class="block text-xs font-bold text-slate-600 uppercase">Material a entregar</label>
-          <select id="materialType" required class="mt-1 w-full p-3 rounded-xl border border-slate-300 bg-white text-sm focus:border-green-500 focus:ring-green-500">
-            <option value="" disabled selected>-- Selecciona un Material --</option>
-            <option value="plastic">Plástico</option>
-            <option value="cardboard">Cartón</option>
-            <option value="paper">Papel de archivo</option>
-            <option value="glass">Vidrio</option>
-            <option value="oil">Aceite Usado de Cocina</option>
-            <option value="batteries">Pilas / Baterías</option>
-          </select>
+          <div class="md:hidden mb-1">
+            <a href="#/" class="text-xs font-bold text-green-700 underline">← Ir al Inicio</a>
+          </div>
+          <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Mi Balance de Reciclaje</h1>
+          <p class="text-slate-500 mt-1 text-xs sm:text-sm">Gestiona tus entregas, mapea puntos en Barranquilla y redime premios.</p>
         </div>
-
-        <div>
-          <label for="quantity" class="block text-xs font-bold text-slate-600 uppercase">Cantidad</label>
-          <input id="quantity" type="number" min="0.1" step="0.1" placeholder="0.0" required class="mt-1 w-full p-3 rounded-xl border border-slate-300 text-sm focus:border-green-500 focus:ring-green-500">
-        </div>
-
-        <div>
-          <label for="unitMeasure" class="block text-xs font-bold text-slate-600 uppercase">Unidad de Medida (Establecida)</label>
-          <input id="unitMeasure" type="text" readonly placeholder="Selecciona un material arriba" 
-            class="mt-1 w-full p-3 rounded-xl border border-slate-200 bg-slate-100 text-slate-700 text-sm font-bold cursor-not-allowed focus:outline-none">
-        </div>
-
-        <button type="submit" class="w-full bg-green-700 hover:bg-green-800 text-white font-bold py-3 rounded-xl text-sm transition-colors shadow-md">
-          Subir Registro de Entrega
+        <button id="openModalBtn" class="w-full sm:w-auto bg-green-700 hover:bg-green-800 text-white font-bold px-5 py-3.5 rounded-xl sm:rounded-2xl inline-flex items-center justify-center gap-2 shadow-sm transition-all transform active:scale-98 cursor-pointer text-sm sm:text-base">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
+          </svg>
+          Registrar Entrega
         </button>
-      </form>
+      </div>
+
+      <!-- TARJETAS DE BALANCE RESPONSIVE CORREGIDAS -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        <div class="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between gap-4">
+          <div class="space-y-1">
+            <p class="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-wider">Mis Puntos Disponibles</p>
+            <p id="userPointsDisplay" class="text-2xl sm:text-3xl font-black text-green-700">0 pts</p>
+          </div>
+          <div class="w-12 h-12 sm:w-14 sm:h-14 bg-green-50 rounded-xl sm:rounded-2xl flex items-center justify-center text-green-600 shrink-0">
+            <svg class="w-6 h-6 sm:w-7 sm:h-7" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499c.151-.326.623-.326.774 0a1.714 1.714 0 002.046 1.022 1.714 1.714 0 012.12 1.258 1.714 1.714 0 001.353 1.353 1.714 1.714 0 011.258 2.12 1.714 1.714 0 001.022 2.046c.326.151.326.623 0 .774a1.714 1.714 0 00-1.022 2.046 1.714 1.714 0 01-1.258 2.12 1.714 1.714 0 00-1.353 1.353 1.714 1.714 0 01-2.12 1.258 1.714 1.714 0 00-2.046 1.022c-.151.326-.623.326-.774 0a1.714 1.714 0 00-2.046-1.022 1.714 1.714 0 01-2.12-1.258 1.714 1.714 0 00-1.353-1.353 1.714 1.714 0 01-1.258-2.12 1.714 1.714 0 00-1.022-2.046c-.326-.151-.326-.623 0-.774a1.714 1.714 0 001.022-2.046 1.714 1.714 0 011.258-2.12 1.714 1.714 0 001.353-1.353 1.714 1.714 0 012.12-1.258 1.714 1.714 0 002.046-1.022z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15.182 15.182a4.5 4.5 0 01-6.364 0M12 10.5h.008v.008H12V10.5z"/></svg>
+          </div>
+        </div>
+
+        <div class="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between gap-4">
+          <div class="space-y-1">
+            <p class="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-wider">Total de Material Entregado</p>
+            <p id="userWeightDisplay" class="text-2xl sm:text-3xl font-black text-slate-900">0 Kg</p>
+          </div>
+          <div class="w-12 h-12 sm:w-14 sm:h-14 bg-blue-50 rounded-xl sm:rounded-2xl flex items-center justify-center text-blue-600 shrink-0">
+            <svg class="w-6 h-6 sm:w-7 sm:h-7" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v17.25m0-17.25a3.75 3.75 0 113.75 3.75M12 3a3.75 3.75 0 10-3.75 3.75M12 7.5h7.5M12 7.5H4.5m3.75 12h7.5"/></svg>
+          </div>
+        </div>
+
+        <div class="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between gap-4 sm:col-span-2 lg:col-span-1">
+          <div class="space-y-1">
+            <p class="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-wider">Meta de Recompensa</p>
+            <p class="text-lg sm:text-xl font-extrabold text-orange-600">10% Descuento Alkosto</p>
+          </div>
+          <div class="w-12 h-12 sm:w-14 sm:h-14 bg-orange-50 rounded-xl sm:rounded-2xl flex items-center justify-center text-orange-600 shrink-0">
+            <svg class="w-6 h-6 sm:w-7 sm:h-7" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-12v.75m0 3v.75m0 3v.75m0 3V18M3 6.75A.75.75 0 013.75 6h16.5a.75.75 0 01.75.75v10.5a.75.75 0 01-.75.75H3.75a.75.75 0 01-.75-.75V6.75z"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- MAPA ECOLÓGICO RESPONSIVE -->
+      <div class="bg-white p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-sm space-y-4">
+        <div>
+          <h3 class="text-lg sm:text-xl font-bold text-slate-900">Mapa de Puntos Verdes (Barranquilla)</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Visualiza todos los centros habilitados de recolección en la ciudad.</p>
+        </div>
+        <div id="dashboardMap" class="w-full h-64 sm:h-80 rounded-xl sm:rounded-2xl border border-slate-200 relative z-10 shadow-inner bg-slate-100"></div>
+      </div>
+
+      <!-- SECCIÓN DOS COLUMNAS -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
+        
+        <!-- CRUD: TABLA HISTORIAL CON SCROLL -->
+        <div class="lg:col-span-2 bg-white p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-sm space-y-4">
+          <h3 class="text-base sm:text-lg font-bold text-slate-900">Historial de Entregas</h3>
+          <div class="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+            <table class="w-full text-left border-collapse min-w-[500px]">
+              <thead>
+                <tr class="text-[11px] sm:text-xs font-bold text-slate-400 border-b border-slate-100 pb-3">
+                  <th class="pb-3 font-semibold">Fecha</th>
+                  <th class="pb-3 font-semibold">Categoría</th>
+                  <th class="pb-3 font-semibold">Cantidad</th>
+                  <th class="pb-3 font-semibold">Puntos</th>
+                  <th class="pb-3 font-semibold text-right">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="historyTableBody" class="text-xs sm:text-sm divide-y divide-slate-100 text-slate-700 font-medium"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- RECOMPENSAS: LISTADO ABIERTO Y DIRECTO (SIN ACORDEÓN) -->
+        <div id="rewardsContainer" class="bg-white p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-sm space-y-4">
+          <h3 class="text-base sm:text-lg font-bold text-slate-900">Canjear Recompensas</h3>
+          <div class="space-y-4">
+            
+            <!-- Tarjeta Bono 1 -->
+            <div class="p-4 rounded-xl border border-slate-200/60 bg-slate-50/40 space-y-3 flex flex-col justify-between">
+              <div class="flex items-start justify-between gap-2">
+                <div>
+                  <h4 class="font-bold text-sm text-slate-900">Bono 10% Descuento</h4>
+                  <div class="text-[11px] text-slate-500 mt-1 space-y-0.5">
+                    <p class="font-semibold text-slate-600">Válido en:</p>
+                    <p>• Electrodomésticos pequeños</p>
+                    <p>• Accesorios de tecnología</p>
+                  </div>
+                </div>
+                <span class="bg-orange-50 text-orange-700 text-xs font-bold px-2.5 py-1 rounded-lg shrink-0">500 pts</span>
+              </div>
+              <button data-cost="500" class="w-full reward-btn font-bold py-2.5 rounded-xl text-xs cursor-pointer transition-all mt-1">Redimir Bono</button>
+            </div>
+
+            <!-- Tarjeta Bono 2 -->
+            <div class="p-4 rounded-xl border border-slate-200/60 bg-slate-50/40 space-y-3 flex flex-col justify-between">
+              <div class="flex items-start justify-between gap-2">
+                <div>
+                  <h4 class="font-bold text-sm text-slate-900">Bono 20% Descuento</h4>
+                  <div class="text-[11px] text-slate-500 mt-1 space-y-0.5">
+                    <p class="font-semibold text-slate-600">Válido en:</p>
+                    <p>• Televisores y Audio</p>
+                    <p>• Computadores y Tablets</p>
+                  </div>
+                </div>
+                <span class="bg-orange-50 text-orange-700 text-xs font-bold px-2.5 py-1 rounded-lg shrink-0">1000 pts</span>
+              </div>
+              <button data-cost="1000" class="w-full reward-btn font-bold py-2.5 rounded-xl text-xs cursor-pointer transition-all mt-1">Redimir Bono</button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- MODAL REGISTRO RESPONSIVE -->
+    <div id="crudModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 hidden z-50 transition-all">
+      <div class="bg-white rounded-t-3xl sm:rounded-3xl max-w-md w-full p-6 shadow-xl space-y-4 relative border border-slate-100 animate-toast">
+        <h3 id="modalTitle" class="text-base sm:text-lg font-bold text-slate-900">Registrar Nueva Entrega</h3>
+        <form id="crudForm" class="space-y-4">
+          <input type="hidden" id="entryIndex" value="">
+          
+          <div>
+            <label for="entryMaterial" class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Material</label>
+            <select id="entryMaterial" required class="mt-1 w-full p-3 rounded-xl border border-slate-200 bg-white text-sm focus:border-green-500 focus:outline-none">
+              <option value="Plástico">Plástico</option>
+              <option value="Cartón y Papel">Cartón y Papel</option>
+              <option value="Vidrio">Vidrio</option>
+              <option value="Aceite Usado">Aceite Usado</option>
+            </select>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label for="entryWeight" class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Cantidad</label>
+              <input id="entryWeight" type="number" min="0.1" step="any" required class="mt-1 w-full p-3 rounded-xl border border-slate-200 text-sm focus:border-green-500 focus:outline-none" placeholder="Ej. 10">
+            </div>
+            <div>
+              <label for="entryUnit" class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Unidad</label>
+              <select id="entryUnit" required class="mt-1 w-full p-3 rounded-xl border border-slate-200 bg-white text-sm focus:border-green-500 focus:outline-none">
+                <option value="Kg">Kg</option>
+                <option value="Litros">Litros</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="flex gap-3 pt-2 pb-4 sm:pb-0">
+            <button type="button" id="closeModalBtn" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-xl text-xs sm:text-sm cursor-pointer">Cancelar</button>
+            <button type="submit" class="flex-1 bg-green-700 hover:bg-green-800 text-white font-bold py-3 rounded-xl text-xs sm:text-sm shadow-sm cursor-pointer">Guardar</button>
+          </div>
+        </form>
+      </div>
     </div>
 
-    <!-- Guía de Apoyo Visual para el Usuario -->
-    <div class="lg:col-span-2 bg-gradient-to-br from-green-800 to-green-950 text-white p-8 rounded-3xl shadow-lg space-y-6 flex flex-col justify-between">
-      <div>
-        <span class="bg-white/20 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">Manual Express</span>
-        <h3 class="text-2xl font-extrabold mt-4 flex items-center gap-2">
-          ¿Cómo entregar tus materiales?
-          <!-- Icono Libro Abierto SVG -->
-          <svg class="w-6 h-6 text-green-300 inline shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
-          </svg>
-        </h3>
-        <ul class="mt-4 space-y-3.5 text-green-100 text-sm">
-          <li class="flex items-start gap-3">
-            <!-- Check Circular Verde SVG -->
-            <svg class="w-5 h-5 text-green-400 mt-0.5 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span><strong>Plásticos, Cartón y Vidrio:</strong> Deben estar totalmente secos y limpios. Aplasta las cajas y botellas para optimizar su espacio de transporte.</span>
-          </li>
-          <li class="flex items-start gap-3">
-            <!-- Check Circular Verde SVG -->
-            <svg class="w-5 h-5 text-green-400 mt-0.5 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span><strong>Aceite de Cocina Usado:</strong> Fíltralo frío para retirar residuos de comida y viértelo en una botella plástica limpia con tapa segura.</span>
-          </li>
-          <li class="flex items-start gap-3">
-            <!-- Check Circular Verde SVG -->
-            <svg class="w-5 h-5 text-green-400 mt-0.5 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span><strong>Pilas y Electrónicos (RAEE):</strong> Entrégalas sin fisuras ni corrosión para evitar accidentes químicos en los centros de acopio.</span>
-          </li>
-        </ul>
-      </div>
-      <div class="border-t border-white/20 pt-4 flex justify-between items-center text-xs text-green-300">
-        <span>EcoRuta Barranquilla — Riwi 2026</span>
-        <span>Aporte al Desarrollo Sostenible</span>
-      </div>
-    </div>
   </div>
   `;
 }
 
-// ------------------- VISTA PARA EL ADMINISTRADOR (ADMIN) -------------------
-function renderAdminDashboard() {
-  return `
-  <div class="space-y-8">
-    <!-- Tarjetas de Métricas Estadísticas Globales -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-      <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-        <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Recicladores Registrados</p>
-        <p id="totalUsersCount" class="text-3xl font-extrabold text-slate-900 mt-2">0</p>
-      </div>
-      <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-        <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Peso Total (Kilos)</p>
-        <p id="totalWeightCount" class="text-3xl font-extrabold text-green-600 mt-2">0.0 kg</p>
-      </div>
-      <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-        <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Material Más Reciclado</p>
-        <p id="topMaterialCount" class="text-xl font-extrabold text-blue-600 mt-3 truncate">Ninguno</p>
-      </div>
-      <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-        <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Entregas Totales</p>
-        <p id="totalDeliveriesCount" class="text-3xl font-extrabold text-indigo-600 mt-2">0</p>
-      </div>
-    </div>
+export function initDashboard() {
+  const currentUser = JSON.parse(localStorage.getItem("current_user"));
+  if (!currentUser) return;
 
-    <!-- Barra de Búsquedas y Filtros -->
-    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row gap-4 items-center justify-between">
-      <div class="relative w-full sm:w-72">
-        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
-          <!-- Icono Lupa SVG -->
-          <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-          </svg>
-        </span>
-        <input id="adminSearchInput" type="text" placeholder="Buscar por nombre o correo..." 
-          class="w-full pl-9 pr-4 py-2 text-sm rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
-      </div>
-      
-      <div class="flex items-center gap-2 w-full sm:w-auto">
-        <label for="adminMaterialFilter" class="text-xs font-bold text-slate-500 uppercase shrink-0">Filtrar Material:</label>
-        <select id="adminMaterialFilter" class="w-full sm:w-48 p-2 text-sm rounded-xl border border-slate-200 bg-white">
-          <option value="all">Todos los materiales</option>
-          <option value="plastic">Plástico</option>
-          <option value="cardboard">Cartón</option>
-          <option value="paper">Papel de archivo</option>
-          <option value="glass">Vidrio</option>
-          <option value="oil">Aceite de Cocina</option>
-          <option value="batteries">Pilas / Baterías</option>
-        </select>
-      </div>
-    </div>
+  const tableBody = document.getElementById("historyTableBody");
+  const modal = document.getElementById("crudModal");
+  const form = document.getElementById("crudForm");
+  const notificationContainer = document.getElementById("notificationContainer");
+  const rewardsContainer = document.getElementById("rewardsContainer");
+  
+  let keyStorage = `records_${currentUser.email}`;
+  if (!localStorage.getItem(keyStorage)) {
+    const initRecords = [
+      { fecha: "2026-07-16", categoria: "Plástico", peso: 25, unidad: "Kg", puntos: 500 },
+      { fecha: "2026-07-01", categoria: "Cartón y Papel", peso: 12, unidad: "Kg", puntos: 180 }
+    ];
+    localStorage.setItem(keyStorage, JSON.stringify(initRecords));
+  }
 
-    <!-- Tabla Maestra de Gestión -->
-    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-      <div class="p-6 border-b border-slate-100 flex justify-between items-center">
-        <div>
-          <h3 class="text-lg font-bold text-slate-900">Control General de Usuarios</h3>
-          <p class="text-xs text-slate-400 mt-0.5">Filtra, busca y visualiza los datos, puntos y materiales entregados por los recicladores</p>
+  const puntosBarranquilla = [
+    { nombre: "EcoPunto Parque Venezuela", localidad: "Norte-Centro Histórico", lat: 11.0084, lng: -74.8132, info: "Cerca al Parque Venezuela. Acepta plásticos, papel y vidrio." },
+    { nombre: "Punto Verde CC Buenavista", localidad: "Riomar", lat: 11.0185, lng: -74.8218, info: "Cerca al C.C. Buenavista. Especializado en pilas, baterías y residuos RAEE." },
+    { nombre: "Centro de Acopio Prado", localidad: "Norte-Centro Histórico", lat: 10.9930, lng: -74.7965, info: "Cerca al sector residencial de El Prado. Acepta aceite de cocina usado y cartón." },
+    { nombre: "Punto Ecológico Parque de la Electrificadora", localidad: "Riomar", lat: 11.0125, lng: -74.8090, info: "Cerca al Parque de la Electrificadora. Residuos domésticos reciclables limpios." },
+    { nombre: "EcoPunto Plaza de la Paz", localidad: "Centro", lat: 10.9880, lng: -74.7895, info: "Cerca a la Plaza de la Paz. Punto central de botellas PET y tapitas." },
+    { nombre: "EcoPunto Éxito Metropolitano (Sur)", localidad: "Metropolitana / Sur", lat: 10.9410, lng: -74.8010, info: "Cerca al Éxito del Estadio Metropolitano. Envases PET, latas y cartón aplanado." },
+    { nombre: "Centro Comunitario de Reciclaje - La Paz", localidad: "Suroeste", lat: 10.9720, lng: -74.8290, info: "Cerca al Barrio La Paz. Proyecto de barrio. Acepta plásticos, papel de archivo y cartón." },
+    { nombre: "EcoPunto CC Paseo de la Castellana", localidad: "Centro Histórico", lat: 10.9995, lng: -74.7860, info: "Cerca al C.C. Paseo de la Castellana. Ideal para comerciantes. Cartón, film y papel." }
+  ];
+  localStorage.setItem('eco_puntos', JSON.stringify(puntosBarranquilla));
+
+  function showToast(message) {
+    if (!notificationContainer) return;
+    const toast = document.createElement("div");
+    toast.className = "bg-slate-950 text-white text-xs font-semibold px-4 py-3.5 rounded-xl shadow-xl flex items-center gap-3 animate-toast pointer-events-auto border border-slate-800";
+    toast.innerHTML = `<span class="text-lg">🎉</span><div>${message}</div>`;
+    notificationContainer.appendChild(toast);
+    setTimeout(() => {
+      toast.style.opacity = "0";
+      setTimeout(() => toast.remove(), 300);
+    }, 4500);
+  }
+
+  function renderAll() {
+    const records = JSON.parse(localStorage.getItem(keyStorage)) || [];
+    let totalPoints = records.reduce((sum, r) => sum + r.puntos, 0);
+    let totalWeight = records.reduce((sum, r) => sum + r.peso, 0);
+
+    if (document.getElementById("userPointsDisplay")) {
+      document.getElementById("userPointsDisplay").innerText = `${totalPoints} pts`;
+    }
+    if (document.getElementById("userWeightDisplay")) {
+      // Muestra claramente la métrica en Kg por defecto para el totalizador del usuario
+      document.getElementById("userWeightDisplay").innerText = `${totalWeight} Kg`;
+    }
+
+    if (tableBody) {
+      tableBody.innerHTML = records.map((rec, index) => `
+        <tr class="hover:bg-slate-50/60 transition-colors">
+          <td class="py-4 text-slate-500 whitespace-nowrap">${rec.fecha}</td>
+          <td class="py-4">
+            <span class="${
+              rec.categoria === 'Plástico' ? 'bg-amber-50 text-amber-700 border border-amber-100' :
+              rec.categoria === 'Cartón y Papel' ? 'bg-blue-50 text-blue-700 border border-blue-100' :
+              rec.categoria === 'Canje Recompensa' ? 'bg-red-50 text-red-700 border border-red-100' :
+              'bg-emerald-50 text-emerald-700 border border-emerald-100'
+            } px-2.5 py-0.5 rounded-full text-[11px] font-bold whitespace-nowrap">
+              ${rec.categoria}
+            </span>
+          </td>
+          <td class="py-4 text-slate-900 font-semibold whitespace-nowrap">${rec.peso > 0 ? `${rec.peso} ${rec.unidad || 'Kg'}` : '-'}</td>
+          <td class="py-4 ${rec.puntos >= 0 ? 'text-green-600' : 'text-red-600'} font-bold whitespace-nowrap">
+            ${rec.puntos >= 0 ? `+${rec.puntos}` : rec.puntos} pts
+          </td>
+          <td class="py-4 text-right space-x-2 whitespace-nowrap">
+            ${rec.categoria !== 'Canje Recompensa' ? `
+              <button data-index="${index}" class="edit-btn text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg border-2 border-blue-800 shadow-xs transition-all active:scale-95 cursor-pointer">
+                Editar
+              </button>
+            ` : ''}
+            <button data-index="${index}" class="delete-btn text-xs font-bold bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg border-2 border-red-800 shadow-xs transition-all active:scale-95 cursor-pointer">
+              Eliminar
+            </button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    document.querySelectorAll(".reward-btn").forEach(btn => {
+      const cost = parseInt(btn.getAttribute("data-cost"));
+      if (totalPoints >= cost) {
+        btn.className = "w-full reward-btn bg-green-700 hover:bg-green-800 text-white font-bold py-2.5 rounded-xl text-xs cursor-pointer transition-colors";
+        btn.innerText = "Redimir Bono";
+        btn.disabled = false;
+      } else {
+        btn.className = "w-full reward-btn bg-slate-200 text-slate-400 font-bold py-2.5 rounded-xl text-xs cursor-not-allowed";
+        btn.innerText = `Faltan ${cost - totalPoints} pts`;
+        btn.disabled = true;
+      }
+    });
+  }
+
+  function renderDashboardMap() {
+    if (typeof L === 'undefined' || !document.getElementById('dashboardMap')) return;
+    
+    const container = L.DomUtil.get('dashboardMap');
+    if (container != null) { container._leaflet_id = null; }
+
+    const map = L.map('dashboardMap').setView([10.9850, -74.8000], 12);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap'
+    }).addTo(map);
+
+    const puntos = JSON.parse(localStorage.getItem('eco_puntos')) || [];
+    puntos.forEach(p => {
+      L.marker([p.lat, p.lng]).addTo(map).bindPopup(`
+        <div class="space-y-1">
+          <span class="text-[10px] font-bold text-green-700 bg-green-50 px-1.5 py-0.5 rounded-md">${p.localidad}</span>
+          <h4 class="font-bold text-slate-900 text-sm m-0 mt-1">${p.nombre}</h4>
+          <p class="text-slate-600 text-xs m-0 pt-0.5">${p.info}</p>
         </div>
-        <span class="text-xs bg-blue-50 text-blue-700 px-3 py-1 rounded-full font-bold border border-blue-100">Consola de Control</span>
-      </div>
-      
-      <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse">
-          <thead>
-            <tr class="bg-slate-50 border-b border-slate-100 text-xs font-bold text-slate-500 uppercase tracking-wider">
-              <th class="p-4">Nombre de Usuario</th>
-              <th class="p-4">Correo Electrónico</th>
-              <th class="p-4 text-center">Puntos Acumulados</th>
-              <th class="p-4 text-center">Material Favorito</th>
-              <th class="p-4 text-center">Registros Realizados</th>
-              <th class="p-4 text-right">Acción</th>
-            </tr>
-          </thead>
-          <tbody id="adminUsersTableBody" class="divide-y divide-slate-100 text-sm text-slate-700">
-            <!-- Filas inyectadas de forma dinámica con JavaScript -->
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-  `;
+      `);
+    });
+
+    setTimeout(() => map.invalidateSize(), 300);
+  }
+
+  // EVENTOS DEL CONTENEDOR DE RECOMPENSAS
+  rewardsContainer?.addEventListener("click", (e) => {
+    const rewardBtn = e.target.closest(".reward-btn");
+    if (rewardBtn && !rewardBtn.disabled) {
+      const cost = parseInt(rewardBtn.getAttribute("data-cost"));
+      const records = JSON.parse(localStorage.getItem(keyStorage)) || [];
+      let totalPoints = records.reduce((sum, r) => sum + r.puntos, 0);
+
+      if (totalPoints >= cost) {
+        const today = new Date().toISOString().split('T')[0];
+        records.unshift({ 
+          fecha: today, 
+          categoria: "Canje Recompensa", 
+          peso: 0, 
+          unidad: "Kg", 
+          puntos: -cost 
+        });
+        localStorage.setItem(keyStorage, JSON.stringify(records));
+        showToast(`¡Bono redimido con éxito! Se descontaron ${cost} pts.`);
+        renderAll();
+      }
+    }
+  });
+
+  document.getElementById("openModalBtn")?.addEventListener("click", () => {
+    document.getElementById("modalTitle").innerText = "Registrar Nueva Entrega";
+    document.getElementById("entryIndex").value = "";
+    form.reset();
+    modal.classList.remove("hidden");
+  });
+
+  document.getElementById("closeModalBtn")?.addEventListener("click", () => modal.classList.add("hidden"));
+
+  form?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const records = JSON.parse(localStorage.getItem(keyStorage)) || [];
+    const index = document.getElementById("entryIndex").value;
+    const mat = document.getElementById("entryMaterial").value;
+    const weight = parseFloat(document.getElementById("entryWeight").value);
+    const unit = document.getElementById("entryUnit").value;
+    
+    let factor = mat === "Plástico" ? 20 : mat === "Cartón y Papel" ? 15 : 80;
+    let pointsCalculated = Math.round(weight * factor);
+
+    if (index === "") {
+      const today = new Date().toISOString().split('T')[0];
+      records.unshift({ fecha: today, categoria: mat, peso: weight, unidad: unit, puntos: pointsCalculated });
+      showToast(`Has agregado ${weight} ${unit} de ${mat}. ¡Sumaste +${pointsCalculated} puntos!`);
+    } else {
+      records[parseInt(index)].categoria = mat;
+      records[parseInt(index)].peso = weight;
+      records[parseInt(index)].unidad = unit;
+      records[parseInt(index)].puntos = pointsCalculated;
+      showToast(`Registro modificado con éxito.`);
+    }
+
+    localStorage.setItem(keyStorage, JSON.stringify(records));
+    modal.classList.add("hidden");
+    renderAll();
+  });
+
+  tableBody?.addEventListener("click", (e) => {
+    const records = JSON.parse(localStorage.getItem(keyStorage)) || [];
+    const editBtn = e.target.closest(".edit-btn");
+    const deleteBtn = e.target.closest(".delete-btn");
+
+    if (editBtn) {
+      const idx = editBtn.getAttribute("data-index");
+      const item = records[idx];
+      document.getElementById("modalTitle").innerText = "Modificar Entrega";
+      document.getElementById("entryIndex").value = idx;
+      document.getElementById("entryMaterial").value = item.categoria;
+      document.getElementById("entryWeight").value = item.peso;
+      document.getElementById("entryUnit").value = item.unidad || "Kg";
+      modal.classList.remove("hidden");
+    }
+
+    if (deleteBtn) {
+      if (confirm("¿Deseas eliminar este registro?")) {
+        records.splice(parseInt(deleteBtn.getAttribute("data-index")), 1);
+        localStorage.setItem(keyStorage, JSON.stringify(records));
+        renderAll();
+        showToast("Registro eliminado.");
+      }
+    }
+  });
+
+  renderAll();
+  setTimeout(renderDashboardMap, 350);
 }

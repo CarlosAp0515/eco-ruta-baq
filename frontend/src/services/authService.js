@@ -14,7 +14,7 @@ export function loginUser() {
 
         if (user) {
             localStorage.setItem("current_user", JSON.stringify(user));
-            window.location.hash = '#/dashboard';
+            window.location.hash = '#/';
         } else {
             alert("⚠️ Credenciales incorrectas o usuario no registrado.");
         }
