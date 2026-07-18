@@ -22,7 +22,7 @@ function router() {
           navContainer.innerHTML = `
             <div class="flex items-center gap-4">
               <span class="text-sm font-medium text-slate-700">
-                Hola, <b class="text-green-700">${currentUser.name}</b> (${currentUser.role === 'admin' ? '💼 Admin' : '🌱 Reciclador'})
+                Hola, <b class="text-green-700">${currentUser.name}</b> ${currentUser.role === 'admin' ? ' (💼 Admin)' : ''}
               </span>
               <a href="#/dashboard" class="bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-xl text-sm font-bold transition-all">
                 Mi Dashboard
