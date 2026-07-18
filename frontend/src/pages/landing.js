@@ -10,6 +10,7 @@ export function landingPage() {
     <nav class="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-slate-100">
       <div class="max-w-7xl mx-auto px-6 h-16 flex justify-between items-center">
         <span class="text-xl font-extrabold text-slate-900 flex items-center gap-2">
+        
           <img src="./src/assets/IconoEcoruta.png" alt="EcoRuta BAQ Logo" class="w-20 h-20 object-contain shrink-0">    
           EcoRuta BAQ
         </span>

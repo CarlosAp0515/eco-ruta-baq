@@ -4,6 +4,7 @@ import { loginPage } from './pages/login.js';
 import { registerPage } from './pages/register-page.js'; 
 import { dashboardPage, initDashboard } from './pages/dashboard.js'; 
 import { loginUser, registerUser } from './services/authService.js'; 
+import { adminDashboardPage, initAdminDashboard } from './pages/adminDashboard.js';
 
 function router() {
   const appElement = document.getElementById('app');
@@ -19,12 +20,15 @@ function router() {
       if (currentUser) {
         const navContainer = document.querySelector('nav .max-w-7xl > div:last-child');
         if (navContainer) {
+          // Si es admin, el botón del Navbar lo lleva a su panel correspondiente
+          const targetDashboard = currentUser.role === 'admin' ? '#/admin-dashboard' : '#/dashboard';
+          
           navContainer.innerHTML = `
             <div class="flex items-center gap-4">
               <span class="text-sm font-medium text-slate-700">
                 Hola, <b class="text-green-700">${currentUser.name}</b> ${currentUser.role === 'admin' ? ' (💼 Admin)' : ''}
               </span>
-              <a href="#/dashboard" class="bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-xl text-sm font-bold transition-all">
+              <a href="${targetDashboard}" class="bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-xl text-sm font-bold transition-all">
                 Mi Dashboard
               </a>
               <button id="logoutBtn" class="bg-red-50 hover:bg-red-100 text-red-600 px-4 py-2 rounded-xl text-sm font-bold border border-red-200 transition-all cursor-pointer">
@@ -52,10 +56,27 @@ function router() {
     } else if (hash === '#/register') {
       appElement.innerHTML = registerPage();
       registerUser(); 
+    } else if (hash === '#/admin-dashboard') {
+      // NUEVA RUTA DEL ADMINISTRADOR
+      const currentUser = JSON.parse(localStorage.getItem("current_user"));
+      if (!currentUser || currentUser.role !== 'admin') {
+        window.location.hash = '#/login';
+        return;
+      }
+
+      appElement.innerHTML = typeof adminDashboardPage === 'function' ? adminDashboardPage() : '';
+      initAdminDashboard();
+
     } else if (hash === '#/dashboard') {
       const currentUser = JSON.parse(localStorage.getItem("current_user"));
       if (!currentUser) {
         window.location.hash = '#/login';
+        return;
+      }
+
+      // Si un admin intenta entrar aquí por error, lo mandamos a su panel administrativo
+      if (currentUser.role === 'admin') {
+        window.location.hash = '#/admin-dashboard';
         return;
       }
 
