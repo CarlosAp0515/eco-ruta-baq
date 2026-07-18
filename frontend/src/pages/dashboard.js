@@ -31,9 +31,7 @@ export function dashboardPage() {
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
         <div class="flex items-center gap-3 sm:gap-6">
           <div class="flex items-center gap-2 shrink-0">
-            <svg class="w-7 h-7 sm:w-8 sm:h-8 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-.778.099-1.533.284-2.253" />
-            </svg>
+          <img src="./src/assets/IconoEcoruta.png" alt="EcoRuta BAQ Logo" class="w-20 h-20 object-contain shrink-0">    
             <span class="text-lg sm:text-2xl font-extrabold text-green-800 tracking-tight shrink-0">EcoRuta BAQ</span>
           </div>
           <nav class="hidden md:flex items-center gap-4">
@@ -71,7 +69,7 @@ export function dashboardPage() {
         </button>
       </div>
 
-      <!-- TARJETAS DE BALANCE RESPONSIVE -->
+      <!-- TARJETAS DE BALANCE RESPONSIVE CORREGIDAS -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         <div class="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between gap-4">
           <div class="space-y-1">
@@ -85,8 +83,8 @@ export function dashboardPage() {
 
         <div class="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between gap-4">
           <div class="space-y-1">
-            <p class="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-wider">Volumen Acumulado</p>
-            <p id="userWeightDisplay" class="text-2xl sm:text-3xl font-black text-slate-900">0 u.</p>
+            <p class="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-wider">Total de Material Entregado</p>
+            <p id="userWeightDisplay" class="text-2xl sm:text-3xl font-black text-slate-900">0 Kg</p>
           </div>
           <div class="w-12 h-12 sm:w-14 sm:h-14 bg-blue-50 rounded-xl sm:rounded-2xl flex items-center justify-center text-blue-600 shrink-0">
             <svg class="w-6 h-6 sm:w-7 sm:h-7" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v17.25m0-17.25a3.75 3.75 0 113.75 3.75M12 3a3.75 3.75 0 10-3.75 3.75M12 7.5h7.5M12 7.5H4.5m3.75 12h7.5"/></svg>
@@ -96,7 +94,7 @@ export function dashboardPage() {
         <div class="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between gap-4 sm:col-span-2 lg:col-span-1">
           <div class="space-y-1">
             <p class="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-wider">Meta de Recompensa</p>
-            <p class="text-lg sm:text-xl font-extrabold text-orange-600">10% Dcto Alkosto</p>
+            <p class="text-lg sm:text-xl font-extrabold text-orange-600">10% Descuento Alkosto</p>
           </div>
           <div class="w-12 h-12 sm:w-14 sm:h-14 bg-orange-50 rounded-xl sm:rounded-2xl flex items-center justify-center text-orange-600 shrink-0">
             <svg class="w-6 h-6 sm:w-7 sm:h-7" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-12v.75m0 3v.75m0 3v.75m0 3V18M3 6.75A.75.75 0 013.75 6h16.5a.75.75 0 01.75.75v10.5a.75.75 0 01-.75.75H3.75a.75.75 0 01-.75-.75V6.75z"/></svg>
@@ -135,45 +133,41 @@ export function dashboardPage() {
           </div>
         </div>
 
-        <!-- RECOMPENSAS CON CONTENEDOR ENLAZADO DINÁMICAMENTE -->
+        <!-- RECOMPENSAS: LISTADO ABIERTO Y DIRECTO (SIN ACORDEÓN) -->
         <div id="rewardsContainer" class="bg-white p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-sm space-y-4">
           <h3 class="text-base sm:text-lg font-bold text-slate-900">Canjear Recompensas</h3>
-          <div class="space-y-3">
+          <div class="space-y-4">
             
-            <div class="p-3 sm:p-4 rounded-xl border border-slate-100 bg-slate-50/50 space-y-3 accordion-item">
-              <button class="w-full flex items-start justify-between gap-2 text-left focus:outline-none accordion-toggle cursor-pointer group">
+            <!-- Tarjeta Bono 1 -->
+            <div class="p-4 rounded-xl border border-slate-200/60 bg-slate-50/40 space-y-3 flex flex-col justify-between">
+              <div class="flex items-start justify-between gap-2">
                 <div>
-                  <h4 class="font-bold text-xs sm:text-sm text-slate-900 group-hover:text-green-700 transition-colors">Bono 10% Descuento</h4>
-                  <p class="text-[11px] text-slate-400 mt-0.5">Ver detalles y productos válidos ↓</p>
+                  <h4 class="font-bold text-sm text-slate-900">Bono 10% Descuento</h4>
+                  <div class="text-[11px] text-slate-500 mt-1 space-y-0.5">
+                    <p class="font-semibold text-slate-600">Válido en:</p>
+                    <p>• Electrodomésticos pequeños</p>
+                    <p>• Accesorios de tecnología</p>
+                  </div>
                 </div>
-                <span class="bg-orange-50 text-orange-700 text-[11px] sm:text-xs font-bold px-2.5 py-1 rounded-lg shrink-0">500 pts</span>
-              </button>
-              <div class="accordion-content hidden text-xs text-slate-500 bg-white p-3 rounded-xl border border-slate-100 space-y-1">
-                <p class="font-semibold text-slate-700">Productos admitidos:</p>
-                <ul class="list-disc pl-4 space-y-0.5 text-[11px]">
-                  <li>Electrodomésticos pequeños</li>
-                  <li>Accesorios de tecnología</li>
-                </ul>
+                <span class="bg-orange-50 text-orange-700 text-xs font-bold px-2.5 py-1 rounded-lg shrink-0">500 pts</span>
               </div>
-              <button data-cost="500" class="w-full reward-btn font-bold py-2.5 rounded-xl text-xs cursor-pointer transition-all">Redimir Bono</button>
+              <button data-cost="500" class="w-full reward-btn font-bold py-2.5 rounded-xl text-xs cursor-pointer transition-all mt-1">Redimir Bono</button>
             </div>
 
-            <div class="p-3 sm:p-4 rounded-xl border border-slate-100 bg-slate-50/50 space-y-3 accordion-item">
-              <button class="w-full flex items-start justify-between gap-2 text-left focus:outline-none accordion-toggle cursor-pointer group">
+            <!-- Tarjeta Bono 2 -->
+            <div class="p-4 rounded-xl border border-slate-200/60 bg-slate-50/40 space-y-3 flex flex-col justify-between">
+              <div class="flex items-start justify-between gap-2">
                 <div>
-                  <h4 class="font-bold text-xs sm:text-sm text-slate-900 group-hover:text-green-700 transition-colors">Bono 20% Descuento</h4>
-                  <p class="text-[11px] text-slate-400 mt-0.5">Ver detalles y productos válidos ↓</p>
+                  <h4 class="font-bold text-sm text-slate-900">Bono 20% Descuento</h4>
+                  <div class="text-[11px] text-slate-500 mt-1 space-y-0.5">
+                    <p class="font-semibold text-slate-600">Válido en:</p>
+                    <p>• Televisores y Audio</p>
+                    <p>• Computadores y Tablets</p>
+                  </div>
                 </div>
-                <span class="bg-orange-50 text-orange-700 text-[11px] sm:text-xs font-bold px-2.5 py-1 rounded-lg shrink-0">1000 pts</span>
-              </button>
-              <div class="accordion-content hidden text-xs text-slate-500 bg-white p-3 rounded-xl border border-slate-100 space-y-1">
-                <p class="font-semibold text-slate-700">Productos admitidos:</p>
-                <ul class="list-disc pl-4 space-y-0.5 text-[11px]">
-                  <li>Televisores y Audio</li>
-                  <li>Computadores y Tablets</li>
-                </ul>
+                <span class="bg-orange-50 text-orange-700 text-xs font-bold px-2.5 py-1 rounded-lg shrink-0">1000 pts</span>
               </div>
-              <button data-cost="1000" class="w-full reward-btn font-bold py-2.5 rounded-xl text-xs cursor-pointer transition-all">Redimir Bono</button>
+              <button data-cost="1000" class="w-full reward-btn font-bold py-2.5 rounded-xl text-xs cursor-pointer transition-all mt-1">Redimir Bono</button>
             </div>
 
           </div>
@@ -277,7 +271,8 @@ export function initDashboard() {
       document.getElementById("userPointsDisplay").innerText = `${totalPoints} pts`;
     }
     if (document.getElementById("userWeightDisplay")) {
-      document.getElementById("userWeightDisplay").innerText = `${totalWeight} u.`;
+      // Muestra claramente la métrica en Kg por defecto para el totalizador del usuario
+      document.getElementById("userWeightDisplay").innerText = `${totalWeight} Kg`;
     }
 
     if (tableBody) {
@@ -288,17 +283,22 @@ export function initDashboard() {
             <span class="${
               rec.categoria === 'Plástico' ? 'bg-amber-50 text-amber-700 border border-amber-100' :
               rec.categoria === 'Cartón y Papel' ? 'bg-blue-50 text-blue-700 border border-blue-100' :
+              rec.categoria === 'Canje Recompensa' ? 'bg-red-50 text-red-700 border border-red-100' :
               'bg-emerald-50 text-emerald-700 border border-emerald-100'
             } px-2.5 py-0.5 rounded-full text-[11px] font-bold whitespace-nowrap">
               ${rec.categoria}
             </span>
           </td>
-          <td class="py-4 text-slate-900 font-semibold whitespace-nowrap">${rec.peso} ${rec.unidad || 'Kg'}</td>
-          <td class="py-4 text-green-600 font-bold whitespace-nowrap">+${rec.puntos} pts</td>
+          <td class="py-4 text-slate-900 font-semibold whitespace-nowrap">${rec.peso > 0 ? `${rec.peso} ${rec.unidad || 'Kg'}` : '-'}</td>
+          <td class="py-4 ${rec.puntos >= 0 ? 'text-green-600' : 'text-red-600'} font-bold whitespace-nowrap">
+            ${rec.puntos >= 0 ? `+${rec.puntos}` : rec.puntos} pts
+          </td>
           <td class="py-4 text-right space-x-2 whitespace-nowrap">
-            <button data-index="${index}" class="edit-btn text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg border-2 border-blue-800 shadow-xs transition-all active:scale-95 cursor-pointer">
-              Editar
-            </button>
+            ${rec.categoria !== 'Canje Recompensa' ? `
+              <button data-index="${index}" class="edit-btn text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg border-2 border-blue-800 shadow-xs transition-all active:scale-95 cursor-pointer">
+                Editar
+              </button>
+            ` : ''}
             <button data-index="${index}" class="delete-btn text-xs font-bold bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg border-2 border-red-800 shadow-xs transition-all active:scale-95 cursor-pointer">
               Eliminar
             </button>
@@ -346,16 +346,8 @@ export function initDashboard() {
     setTimeout(() => map.invalidateSize(), 300);
   }
 
-  // 🛠️ SOLUCIÓN: DELEGACIÓN DE EVENTOS PARA EL ACORDEÓN (Blindado contra renders continuos)
+  // EVENTOS DEL CONTENEDOR DE RECOMPENSAS
   rewardsContainer?.addEventListener("click", (e) => {
-    const toggleButton = e.target.closest(".accordion-toggle");
-    if (toggleButton) {
-      const item = toggleButton.closest(".accordion-item");
-      const content = item.querySelector(".accordion-content");
-      content.classList.toggle("hidden");
-      return;
-    }
-
     const rewardBtn = e.target.closest(".reward-btn");
     if (rewardBtn && !rewardBtn.disabled) {
       const cost = parseInt(rewardBtn.getAttribute("data-cost"));
@@ -364,7 +356,6 @@ export function initDashboard() {
 
       if (totalPoints >= cost) {
         const today = new Date().toISOString().split('T')[0];
-        // Restamos los puntos agregando un registro negativo al historial
         records.unshift({ 
           fecha: today, 
           categoria: "Canje Recompensa", 
