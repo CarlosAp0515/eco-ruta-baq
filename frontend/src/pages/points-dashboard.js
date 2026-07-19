@@ -18,6 +18,7 @@ export function pointsDashboardPage() {
           EcoRuta BAQ
         </a>
         <div class="flex items-center gap-4">
+          <a href="#/guia" class="text-sm font-semibold text-slate-600 hover:text-green-700 transition-colors">Guía de Reciclaje</a>
           <span id="userNameDisplay" class="text-sm text-slate-600 font-bold">Hola, Usuario</span>
           <button id="btnLogout" class="text-sm text-red-600 hover:underline font-semibold">Cerrar Sesión</button>
         </div>

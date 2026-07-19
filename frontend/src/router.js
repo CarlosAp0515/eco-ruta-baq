@@ -2,15 +2,21 @@ import { landingPage } from './pages/landing.js';
 import { loginPage } from './pages/login.js'; 
 import { registerPage } from './pages/register-page.js';
 import { pointsDashboardPage } from './pages/points-dashboard.js';
-
+import { guidePage } from './pages/guide.js'; 
 import { initLandingPage } from './services/landingService.js';
 import { initPointsDashboard } from './services/pointsService.js';
 import { loginUser, registerUser } from './services/authService.js';
+
 
 const routes = {
     '#/': {
         view: landingPage,
         init: initLandingPage,
+        requiresAuth: false
+    },
+        '#/guia': {
+        view: guidePage,
+        init: null,
         requiresAuth: false
     },
     '#/login': {
