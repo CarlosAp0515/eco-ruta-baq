@@ -52,6 +52,16 @@ Citizens often want to recycle but don't know *what* can be recycled, *how* to p
 - Administrative dashboard
 - Reward redemption
 
+## 🌐 Live Deployment
+
+EcoRuta BAQ is deployed and publicly accessible:
+
+Layer           Platform    URL     
+Frontend        Vercel      eco-ruta-baq.vercel.app
+Backend / API   Railway     eco-ruta-baq-production.up.railway.app
+Database        Supabase    Managed PostgreSQL
+
+Both services auto-deploy on every push to the "estructura-actualizada" branch.
 ---
 
 ## 🛠 Tech Stack
