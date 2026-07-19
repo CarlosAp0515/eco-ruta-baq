@@ -56,11 +56,10 @@ Citizens often want to recycle but don't know *what* can be recycled, *how* to p
 
 EcoRuta BAQ is deployed and publicly accessible:
 
-Layer           Platform    URL     
-Frontend        Vercel      eco-ruta-baq.vercel.app
-Backend / API   Railway     eco-ruta-baq-production.up.railway.app
-Database        Supabase    Managed PostgreSQL
-
+Plataform:
+- Vercel (Frontend) URL: "eco-ruta-baq.vercel.app"
+- Railway (Backend/API) URL: "eco-ruta-baq-production.up.railway.app"
+- Supabase (Database) 
 Both services auto-deploy on every push to the "estructura-actualizada" branch.
 ---
 
