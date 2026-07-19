@@ -5,6 +5,8 @@ import { registerPage } from './pages/register-page.js';
 import { dashboardPage, initDashboard } from './pages/dashboard.js'; 
 import { loginUser, registerUser } from './services/authService.js'; 
 import { adminDashboardPage, initAdminDashboard } from './pages/adminDashboard.js';
+import { guidePage } from './pages/guide.js';
+
 
 function router() {
   const appElement = document.getElementById('app');
@@ -56,6 +58,8 @@ function router() {
     } else if (hash === '#/register') {
       appElement.innerHTML = registerPage();
       registerUser(); 
+    } else if (hash === '#/guia') {
+      appElement.innerHTML = typeof guidePage === 'function' ? guidePage() : '';
     } else if (hash === '#/admin-dashboard') {
       // NUEVA RUTA DEL ADMINISTRADOR
       const currentUser = JSON.parse(localStorage.getItem("current_user"));
@@ -141,3 +145,4 @@ window.addEventListener('load', () => {
   initData();
   router();
 });
+
