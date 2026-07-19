@@ -308,7 +308,7 @@ Core flow — *as a recycler, I register, learn how to recycle, deliver material
 
 ## 📋 Methodology & Scrum Evidence
 
-The project was developed using **Scrum**, managed through a Trello board organized by workflow columns: *Product Backlog*, *Sprint Backlog*, *En Desarrollo*, *En Revisión*, *Pruebas QA*, *Terminado* and *Bugs*, plus a dedicated *Información del Proyecto* section holding the team's branch/commit conventions and a *Documentación* list tracking the project's deliverables (README, technical pitch, commercial pitch, technical document, test cases).
+The project was developed using **Scrum**, managed through a Trello board organized by workflow columns: *Product Backlog*, *Sprint Backlog*, *In Develop*, *In revision*, *Testing QA*, *Finished* and *Bugs*, plus a dedicated *Information of the project* section holding the team's branch/commit conventions and a *Documentation* list tracking the project's deliverables (README, technical pitch, commercial pitch, technical document, test cases).
 
 Each card includes a subtask checklist, member labels and, when applicable, due dates — giving full traceability of each user story's progress throughout the sprint.
 
