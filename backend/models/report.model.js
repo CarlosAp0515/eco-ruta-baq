@@ -1,7 +1,15 @@
 // models/report.model.js
 import { supabase } from "../config/db.js";
 
-export async function createReport({ userId, spotId, category, quantity, unit, points, evidenceUrl }) {
+export async function createReport({
+  userId,
+  spotId,
+  category,
+  quantity,
+  unit,
+  points,
+  evidenceUrl,
+}) {
   const { data, error } = await supabase
     .from("reports")
     .insert({
@@ -11,7 +19,7 @@ export async function createReport({ userId, spotId, category, quantity, unit, p
       quantity,
       unit,
       points,
-      evidence_url: evidenceUrl || null
+      evidence_url: evidenceUrl || null,
     })
     .select("*")
     .single();
@@ -30,7 +38,11 @@ export async function getReportsByUser(userId) {
 }
 
 export async function getReportById(id) {
-  const { data, error } = await supabase.from("reports").select("*").eq("id", id).maybeSingle();
+  const { data, error } = await supabase
+    .from("reports")
+    .select("*")
+    .eq("id", id)
+    .maybeSingle();
   if (error) throw new Error(error.message);
   return data;
 }
@@ -48,7 +60,11 @@ export async function updateReport(id, patch) {
 }
 
 export async function deleteReport(id) {
-  const { data, error } = await supabase.from("reports").delete().eq("id", id).select("id");
+  const { data, error } = await supabase
+    .from("reports")
+    .delete()
+    .eq("id", id)
+    .select("id");
   if (error) throw new Error(error.message);
   return data.length > 0;
 }
@@ -57,7 +73,7 @@ export async function deleteReport(id) {
 export async function getAllReports({ status } = {}) {
   let q = supabase
     .from("reports")
-    .select("*, users(name, email)")
+    .select("*, users(first_names, last_names, email)")
     .order("created_at", { ascending: false });
   if (status) q = q.eq("status", status);
 
@@ -66,9 +82,11 @@ export async function getAllReports({ status } = {}) {
 
   return data.map((r) => ({
     ...r,
-    user_name: r.users?.name ?? null,
+    user_name: r.users
+      ? [r.users.first_names, r.users.last_names].filter(Boolean).join(" ")
+      : null,
     user_email: r.users?.email ?? null,
-    users: undefined
+    users: undefined,
   }));
 }
 
@@ -80,7 +98,9 @@ export async function getUserPointsSummary(userId) {
     .eq("user_id", userId);
   if (error) throw new Error(error.message);
 
-  let confirmed_points = 0, pending_points = 0, total_kg = 0;
+  let confirmed_points = 0,
+    pending_points = 0,
+    total_kg = 0;
   for (const r of data) {
     if (r.status === "validado") {
       confirmed_points += r.points || 0;
@@ -94,10 +114,11 @@ export async function getUserPointsSummary(userId) {
 
 /** Ranking ecológico: usuarios ordenados por puntos validados (calculado en JS). */
 export async function getRanking(limit = 20) {
+  // id_role = 1 -> recycler ("user"), según el mapeo de roles definido en user.model.js.
   const { data: users, error: usersError } = await supabase
     .from("users")
-    .select("id, name, location")
-    .eq("role", "user");
+    .select("id_user, first_names, last_names")
+    .eq("id_role", 1);
   if (usersError) throw new Error(usersError.message);
 
   const { data: reports, error: reportsError } = await supabase
@@ -113,10 +134,9 @@ export async function getRanking(limit = 20) {
 
   return users
     .map((u) => ({
-      user_id: u.id,
-      name: u.name,
-      location: u.location,
-      points: pointsByUser[u.id] || 0
+      user_id: u.id_user,
+      name: [u.first_names, u.last_names].filter(Boolean).join(" "),
+      points: pointsByUser[u.id_user] || 0,
     }))
     .sort((a, b) => b.points - a.points || a.name.localeCompare(b.name))
     .slice(0, limit);

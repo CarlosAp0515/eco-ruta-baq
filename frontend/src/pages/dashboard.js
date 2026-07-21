@@ -1,8 +1,17 @@
 // src/pages/dashboard.js
+import { getCurrentUser, clearSession } from "../services/api.js";
+
+function getDisplayName(user) {
+  const fullName = [user.first_names, user.last_names]
+    .filter(Boolean)
+    .join(" ");
+  return fullName || "Usuario";
+}
 
 export function dashboardPage() {
-  const currentUser = JSON.parse(localStorage.getItem("current_user"));
-  if (!currentUser) return `<p class="p-4 sm:p-8 text-slate-600 font-medium">Cargando...</p>`;
+  const currentUser = getCurrentUser();
+  if (!currentUser)
+    return `<p class="p-4 sm:p-8 text-slate-600 font-medium">Cargando...</p>`;
 
   return `
   <!-- ESTILOS INYECTADOS PARA ANIMACIONES Y AJUSTES DE LEAFLET -->
@@ -41,7 +50,7 @@ export function dashboardPage() {
         
         <div class="flex items-center gap-3 sm:gap-4 ml-auto text-right">
           <span class="text-xs sm:text-sm font-medium text-slate-700 truncate max-w-[120px] sm:max-w-none">
-            Hola, <b class="text-slate-900">${currentUser.name || 'Usuario'}</b>
+            Hola, <b class="text-slate-900">${getDisplayName(currentUser)}</b>
           </span>
           <button id="logoutBtn" class="text-xs sm:text-sm font-bold text-red-600 hover:text-red-700 transition-colors cursor-pointer shrink-0">
             Salir
@@ -220,47 +229,110 @@ export function dashboardPage() {
 }
 
 export function initDashboard() {
-  const currentUser = JSON.parse(localStorage.getItem("current_user"));
+  const currentUser = getCurrentUser();
   if (!currentUser) return;
 
   const tableBody = document.getElementById("userDeliveriesTableBodyBody");
   const modal = document.getElementById("crudModal");
   const form = document.getElementById("crudForm");
-  const notificationContainer = document.getElementById("notificationContainer");
+  const notificationContainer = document.getElementById(
+    "notificationContainer",
+  );
   const rewardsContainer = document.getElementById("rewardsContainer");
   const logoutBtn = document.getElementById("logoutBtn");
-  
+
   const keyStorage = `records_${currentUser.email}`;
   if (!localStorage.getItem(keyStorage)) {
     const initRecords = [
-      { fecha: "2026-07-16", categoria: "Plástico", peso: 25, unidad: "Kg", puntos: 500 },
-      { fecha: "2026-07-01", categoria: "Cartón y Papel", peso: 12, unidad: "Kg", puntos: 180 }
+      {
+        fecha: "2026-07-16",
+        categoria: "Plástico",
+        peso: 25,
+        unidad: "Kg",
+        puntos: 500,
+      },
+      {
+        fecha: "2026-07-01",
+        categoria: "Cartón y Papel",
+        peso: 12,
+        unidad: "Kg",
+        puntos: 180,
+      },
     ];
     localStorage.setItem(keyStorage, JSON.stringify(initRecords));
   }
 
   const puntosBarranquilla = [
-    { nombre: "EcoPunto Parque Venezuela", localidad: "Norte-Centro Histórico", lat: 11.0084, lng: -74.8132, info: "Cerca al Parque Venezuela. Acepta plásticos, papel y vidrio." },
-    { nombre: "Punto Verde CC Buenavista", localidad: "Riomar", lat: 11.0185, lng: -74.8218, info: "Cerca al C.C. Buenavista. Especializado en pilas, baterías y residuos RAEE." },
-    { nombre: "Centro de Acopio Prado", localidad: "Norte-Centro Histórico", lat: 10.9930, lng: -74.7965, info: "Cerca al sector residencial de El Prado. Acepta aceite de cocina usado y cartón." },
-    { nombre: "Punto Ecológico Parque de la Electrificadora", localidad: "Riomar", lat: 11.0125, lng: -74.8090, info: "Cerca al Parque de la Electrificadora. Residuos domésticos reciclables limpios." },
-    { nombre: "EcoPunto Plaza de la Paz", localidad: "Centro", lat: 10.9880, lng: -74.7895, info: "Cerca a la Plaza de la Paz. Punto central de botellas PET y tapitas." },
-    { nombre: "EcoPunto Éxito Metropolitano (Sur)", localidad: "Metropolitana / Sur", lat: 10.9410, lng: -74.8010, info: "Cerca al Éxito del Estadio Metropolitano. Envases PET, latas y cartón aplanado." },
-    { nombre: "Centro Comunitario de Reciclaje - La Paz", localidad: "Suroeste", lat: 10.9720, lng: -74.8290, info: "Cerca al Barrio La Paz. Proyecto de barrio. Acepta plásticos, papel de archivo y cartón." },
-    { nombre: "EcoPunto CC Paseo de la Castellana", localidad: "Centro Histórico", lat: 10.9995, lng: -74.7860, info: "Cerca al C.C. Paseo de la Castellana. Ideal para comerciantes. Cartón, film y papel." }
+    {
+      nombre: "EcoPunto Parque Venezuela",
+      localidad: "Norte-Centro Histórico",
+      lat: 11.0084,
+      lng: -74.8132,
+      info: "Cerca al Parque Venezuela. Acepta plásticos, papel y vidrio.",
+    },
+    {
+      nombre: "Punto Verde CC Buenavista",
+      localidad: "Riomar",
+      lat: 11.0185,
+      lng: -74.8218,
+      info: "Cerca al C.C. Buenavista. Especializado en pilas, baterías y residuos RAEE.",
+    },
+    {
+      nombre: "Centro de Acopio Prado",
+      localidad: "Norte-Centro Histórico",
+      lat: 10.993,
+      lng: -74.7965,
+      info: "Cerca al sector residencial de El Prado. Acepta aceite de cocina usado y cartón.",
+    },
+    {
+      nombre: "Punto Ecológico Parque de la Electrificadora",
+      localidad: "Riomar",
+      lat: 11.0125,
+      lng: -74.809,
+      info: "Cerca al Parque de la Electrificadora. Residuos domésticos reciclables limpios.",
+    },
+    {
+      nombre: "EcoPunto Plaza de la Paz",
+      localidad: "Centro",
+      lat: 10.988,
+      lng: -74.7895,
+      info: "Cerca a la Plaza de la Paz. Punto central de botellas PET y tapitas.",
+    },
+    {
+      nombre: "EcoPunto Éxito Metropolitano (Sur)",
+      localidad: "Metropolitana / Sur",
+      lat: 10.941,
+      lng: -74.801,
+      info: "Cerca al Éxito del Estadio Metropolitano. Envases PET, latas y cartón aplanado.",
+    },
+    {
+      nombre: "Centro Comunitario de Reciclaje - La Paz",
+      localidad: "Suroeste",
+      lat: 10.972,
+      lng: -74.829,
+      info: "Cerca al Barrio La Paz. Proyecto de barrio. Acepta plásticos, papel de archivo y cartón.",
+    },
+    {
+      nombre: "EcoPunto CC Paseo de la Castellana",
+      localidad: "Centro Histórico",
+      lat: 10.9995,
+      lng: -74.786,
+      info: "Cerca al C.C. Paseo de la Castellana. Ideal para comerciantes. Cartón, film y papel.",
+    },
   ];
-  localStorage.setItem('eco_puntos', JSON.stringify(puntosBarranquilla));
+  localStorage.setItem("eco_puntos", JSON.stringify(puntosBarranquilla));
 
   // Manejador de Cierre de Sesión
   logoutBtn?.addEventListener("click", () => {
-    localStorage.removeItem("current_user");
+    clearSession();
     window.location.hash = "#/";
   });
 
   function showToast(message) {
     if (!notificationContainer) return;
     const toast = document.createElement("div");
-    toast.className = "bg-slate-950 text-white text-xs font-semibold px-4 py-3.5 rounded-xl shadow-xl flex items-center gap-3 animate-toast pointer-events-auto border border-slate-800";
+    toast.className =
+      "bg-slate-950 text-white text-xs font-semibold px-4 py-3.5 rounded-xl shadow-xl flex items-center gap-3 animate-toast pointer-events-auto border border-slate-800";
     toast.innerHTML = `<span class="text-lg">🎉</span><div>${message}</div>`;
     notificationContainer.appendChild(toast);
     setTimeout(() => {
@@ -272,10 +344,10 @@ export function initDashboard() {
   function renderAll() {
     const records = JSON.parse(localStorage.getItem(keyStorage)) || [];
     const totalPoints = records.reduce((sum, r) => sum + r.puntos, 0);
-    
+
     // Suma solo el material entregado real (excluye canjes de puntos)
     const totalWeight = records
-      .filter(r => r.categoria !== "Canje Recompensa")
+      .filter((r) => r.categoria !== "Canje Recompensa")
       .reduce((sum, r) => sum + r.peso, 0);
 
     const pointsElem = document.getElementById("userPointsDisplay");
@@ -294,48 +366,61 @@ export function initDashboard() {
           </tr>
         `;
       } else {
-        tableBody.innerHTML = records.map((rec, index) => `
+        tableBody.innerHTML = records
+          .map(
+            (rec, index) => `
           <tr class="hover:bg-slate-50/60 transition-colors">
             <td class="py-4 text-slate-500 whitespace-nowrap">${rec.fecha}</td>
             <td class="py-4">
               <span class="${
-                rec.categoria === 'Plástico' ? 'bg-amber-50 text-amber-700 border border-amber-100' :
-                rec.categoria === 'Cartón y Papel' ? 'bg-blue-50 text-blue-700 border border-blue-100' :
-                rec.categoria === 'Canje Recompensa' ? 'bg-red-50 text-red-700 border border-red-100' :
-                'bg-emerald-50 text-emerald-700 border border-emerald-100'
+                rec.categoria === "Plástico"
+                  ? "bg-amber-50 text-amber-700 border border-amber-100"
+                  : rec.categoria === "Cartón y Papel"
+                    ? "bg-blue-50 text-blue-700 border border-blue-100"
+                    : rec.categoria === "Canje Recompensa"
+                      ? "bg-red-50 text-red-700 border border-red-100"
+                      : "bg-emerald-50 text-emerald-700 border border-emerald-100"
               } px-2.5 py-0.5 rounded-full text-[11px] font-bold whitespace-nowrap">
                 ${rec.categoria}
               </span>
             </td>
             <td class="py-4 text-slate-900 font-semibold whitespace-nowrap">
-              ${rec.peso > 0 ? `${rec.peso} ${rec.unidad || 'Kg'}` : '-'}
+              ${rec.peso > 0 ? `${rec.peso} ${rec.unidad || "Kg"}` : "-"}
             </td>
-            <td class="py-4 ${rec.puntos >= 0 ? 'text-green-600' : 'text-red-600'} font-bold whitespace-nowrap">
+            <td class="py-4 ${rec.puntos >= 0 ? "text-green-600" : "text-red-600"} font-bold whitespace-nowrap">
               ${rec.puntos >= 0 ? `+${rec.puntos}` : rec.puntos} pts
             </td>
             <td class="py-4 text-right space-x-2 whitespace-nowrap">
-              ${rec.categoria !== 'Canje Recompensa' ? `
+              ${
+                rec.categoria !== "Canje Recompensa"
+                  ? `
                 <button data-index="${index}" class="edit-btn text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg border-2 border-blue-800 shadow-xs transition-all active:scale-95 cursor-pointer">
                   Editar
                 </button>
-              ` : ''}
+              `
+                  : ""
+              }
               <button data-index="${index}" class="delete-btn text-xs font-bold bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg border-2 border-red-800 shadow-xs transition-all active:scale-95 cursor-pointer">
                 Eliminar
               </button>
             </td>
           </tr>
-        `).join('');
+        `,
+          )
+          .join("");
       }
     }
 
-    document.querySelectorAll(".reward-btn").forEach(btn => {
+    document.querySelectorAll(".reward-btn").forEach((btn) => {
       const cost = parseInt(btn.getAttribute("data-cost"));
       if (totalPoints >= cost) {
-        btn.className = "w-full reward-btn bg-green-700 hover:bg-green-800 text-white font-bold py-2.5 rounded-xl text-xs cursor-pointer transition-colors";
+        btn.className =
+          "w-full reward-btn bg-green-700 hover:bg-green-800 text-white font-bold py-2.5 rounded-xl text-xs cursor-pointer transition-colors";
         btn.innerText = "Redimir Bono";
         btn.disabled = false;
       } else {
-        btn.className = "w-full reward-btn bg-slate-200 text-slate-400 font-bold py-2.5 rounded-xl text-xs cursor-not-allowed";
+        btn.className =
+          "w-full reward-btn bg-slate-200 text-slate-400 font-bold py-2.5 rounded-xl text-xs cursor-not-allowed";
         btn.innerText = `Faltan ${cost - totalPoints} pts`;
         btn.disabled = true;
       }
@@ -343,18 +428,21 @@ export function initDashboard() {
   }
 
   function renderDashboardMap() {
-    if (typeof L === 'undefined' || !document.getElementById('dashboardMap')) return;
-    
-    const container = L.DomUtil.get('dashboardMap');
-    if (container != null) { container._leaflet_id = null; }
+    if (typeof L === "undefined" || !document.getElementById("dashboardMap"))
+      return;
 
-    const map = L.map('dashboardMap').setView([10.9850, -74.8000], 12);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap'
+    const container = L.DomUtil.get("dashboardMap");
+    if (container != null) {
+      container._leaflet_id = null;
+    }
+
+    const map = L.map("dashboardMap").setView([10.985, -74.8], 12);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: "&copy; OpenStreetMap",
     }).addTo(map);
 
-    const puntos = JSON.parse(localStorage.getItem('eco_puntos')) || [];
-    puntos.forEach(p => {
+    const puntos = JSON.parse(localStorage.getItem("eco_puntos")) || [];
+    puntos.forEach((p) => {
       L.marker([p.lat, p.lng]).addTo(map).bindPopup(`
         <div class="space-y-1">
           <span class="text-[10px] font-bold text-green-700 bg-green-50 px-1.5 py-0.5 rounded-md">${p.localidad}</span>
@@ -376,13 +464,13 @@ export function initDashboard() {
       const totalPoints = records.reduce((sum, r) => sum + r.puntos, 0);
 
       if (totalPoints >= cost) {
-        const today = new Date().toISOString().split('T')[0];
-        records.unshift({ 
-          fecha: today, 
-          categoria: "Canje Recompensa", 
-          peso: 0, 
-          unidad: "Kg", 
-          puntos: -cost 
+        const today = new Date().toISOString().split("T")[0];
+        records.unshift({
+          fecha: today,
+          categoria: "Canje Recompensa",
+          peso: 0,
+          unidad: "Kg",
+          puntos: -cost,
         });
         localStorage.setItem(keyStorage, JSON.stringify(records));
         showToast(`¡Bono redimido con éxito! Se descontaron ${cost} pts.`);
@@ -399,7 +487,9 @@ export function initDashboard() {
     modal.classList.remove("hidden");
   });
 
-  document.getElementById("closeModalBtn")?.addEventListener("click", () => modal.classList.add("hidden"));
+  document
+    .getElementById("closeModalBtn")
+    ?.addEventListener("click", () => modal.classList.add("hidden"));
 
   form?.addEventListener("submit", (e) => {
     e.preventDefault();
@@ -408,21 +498,29 @@ export function initDashboard() {
     const mat = document.getElementById("entryMaterial").value;
     const weight = parseFloat(document.getElementById("entryWeight").value);
     const unit = document.getElementById("entryUnit").value;
-    
+
     // Cálculo unificado de puntos por categoría
     const factors = {
-      "Plástico": 20,
+      Plástico: 20,
       "Cartón y Papel": 15,
-      "Vidrio": 10,
-      "Aceite Usado": 25
+      Vidrio: 10,
+      "Aceite Usado": 25,
     };
     const factor = factors[mat] || 15;
     const pointsCalculated = Math.round(weight * factor);
 
     if (index === "") {
-      const today = new Date().toISOString().split('T')[0];
-      records.unshift({ fecha: today, categoria: mat, peso: weight, unidad: unit, puntos: pointsCalculated });
-      showToast(`Has agregado ${weight} ${unit} de ${mat}. ¡Sumaste +${pointsCalculated} puntos!`);
+      const today = new Date().toISOString().split("T")[0];
+      records.unshift({
+        fecha: today,
+        categoria: mat,
+        peso: weight,
+        unidad: unit,
+        puntos: pointsCalculated,
+      });
+      showToast(
+        `Has agregado ${weight} ${unit} de ${mat}. ¡Sumaste +${pointsCalculated} puntos!`,
+      );
     } else {
       records[parseInt(index)].categoria = mat;
       records[parseInt(index)].peso = weight;

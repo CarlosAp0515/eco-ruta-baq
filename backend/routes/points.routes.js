@@ -12,7 +12,7 @@ router.get("/me", requireAuth, async (req, res, next) => {
     res.json({
       confirmedPoints: Number(summary.confirmed_points),
       pendingPoints: Number(summary.pending_points),
-      totalKg: Number(summary.total_kg)
+      totalKg: Number(summary.total_kg),
     });
   } catch (error) {
     next(error);
@@ -28,9 +28,8 @@ router.get("/ranking", async (req, res, next) => {
       ranking: ranking.map((row, index) => ({
         position: index + 1,
         name: row.name,
-        location: row.location,
-        points: Number(row.points)
-      }))
+        points: Number(row.points),
+      })),
     });
   } catch (error) {
     next(error);
