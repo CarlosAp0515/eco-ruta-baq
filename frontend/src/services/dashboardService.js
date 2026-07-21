@@ -1,4 +1,4 @@
-// src/services/pointsService.js
+// src/services/dashboardService.js
 
 export function initPointsDashboard() {
   const currentUser = JSON.parse(localStorage.getItem("current_user"));
@@ -15,17 +15,17 @@ export function initPointsDashboard() {
   } else {
     setupMaterialUnitMapping();
     setupUserRegistrationForm(currentUser);
+    loadUserData(currentUser); // 👈 ¡Nuevo! Carga los registros personales del usuario
   }
 }
 
-// 📐 1. LIGAR AUTOMÁTICAMENTE EL MATERIAL CON SU UNIDAD DE MEDIDA EN LA INTERFAZ
+// 1. LIGAR AUTOMÁTICAMENTE EL MATERIAL CON SU UNIDAD DE MEDIDA EN LA INTERFAZ
 function setupMaterialUnitMapping() {
   const materialSelect = document.getElementById("materialType");
   const unitInput = document.getElementById("unitMeasure");
 
   if (!materialSelect || !unitInput) return;
 
-  // Diccionario estricto de materiales y unidades
   const unitMapping = {
     plastic: "Kilogramos (kg)",
     cardboard: "Kilogramos (kg)",
@@ -37,12 +37,11 @@ function setupMaterialUnitMapping() {
 
   materialSelect.addEventListener("change", (e) => {
     const selectedMaterial = e.target.value;
-    // Asignar el texto de forma dinámica y segura
     unitInput.value = unitMapping[selectedMaterial] || "";
   });
 }
 
-// 📝 2. LÓGICA DE REGISTRO SEGURO PARA EL USUARIO COMÚN
+// LÓGICA DE REGISTRO SEGURO PARA EL USUARIO COMÚN
 function setupUserRegistrationForm(currentUser) {
   const form = document.getElementById("recordForm");
   const msgDiv = document.getElementById("deliveryMessage");
@@ -57,13 +56,11 @@ function setupUserRegistrationForm(currentUser) {
     const quantity = parseFloat(document.getElementById("quantity").value);
     const unit = document.getElementById("unitMeasure").value;
 
-    // Validación estricta en el submit para evitar fraudes en el DOM
     if (!material || isNaN(quantity) || quantity <= 0 || !unit) {
       showMsg("⚠️ Todos los campos son obligatorios y la cantidad debe ser mayor a 0.", "red");
       return;
     }
 
-    // Doble verificación del mapeo de unidades para blindar la base de datos local
     const safetyMapping = {
       plastic: "Kilogramos (kg)",
       cardboard: "Kilogramos (kg)",
@@ -78,7 +75,6 @@ function setupUserRegistrationForm(currentUser) {
       return;
     }
 
-    // Estructurar el nuevo registro de entrega
     const deliveries = JSON.parse(localStorage.getItem("deliveries_db")) || [];
     const newDelivery = {
       id: Date.now(),
@@ -95,6 +91,9 @@ function setupUserRegistrationForm(currentUser) {
 
     showMsg("¡Entrega registrada con éxito! Tus puntos han sido cargados a tu cuenta.", "green");
     form.reset();
+
+    // Recargar la tabla del usuario inmediatamente tras registrar una entrega
+    loadUserData(currentUser);
   });
 
   function showMsg(text, type) {
@@ -108,30 +107,79 @@ function setupUserRegistrationForm(currentUser) {
   }
 }
 
-// 🛡️ 3. CARGA DE DATOS PARA EL ADMINISTRADOR (SOLO LECTURA DE OTROS)
+//  CARGA DE REGISTROS PROPIOS DEL USUARIO REGISTRADO
+function loadUserData(currentUser) {
+  const deliveries = JSON.parse(localStorage.getItem("deliveries_db")) || [];
+  
+  // FILTRAR: Solo las entregas que le pertenecen a este ID
+  const myDeliveries = deliveries.filter(d => d.userId === currentUser.id);
+
+  const tbody = document.getElementById("userDeliveriesTableBody");
+  const totalCountSpan = document.getElementById("userTotalDeliveries");
+
+  if (totalCountSpan) {
+    totalCountSpan.textContent = myDeliveries.length;
+  }
+
+  if (!tbody) return;
+
+  // Si el usuario es nuevo y no tiene registros, mostrar mensaje de tabla vacía
+  if (myDeliveries.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="4" class="p-8 text-center text-slate-400 text-sm">
+          Aún no has registrado ninguna entrega. ¡Haz tu primer reciclaje arriba!  🌱
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  // Traducción visual de materiales
+  const materialNames = {
+    plastic: "Plástico",
+    cardboard: "Cartón",
+    paper: "Papel",
+    glass: "Vidrio",
+    oil: "Aceite",
+    batteries: "Baterías"
+  };
+
+  // Renderizar dinámicamente sus entregas reales
+  tbody.innerHTML = myDeliveries.map(d => `
+    <tr class="hover:bg-slate-50/50 transition-colors border-b border-slate-100">
+      <td class="p-4 text-xs text-slate-500">${d.date}</td>
+      <td class="p-4 font-semibold text-slate-800">${materialNames[d.material] || d.material}</td>
+      <td class="p-4 text-slate-600 font-medium">${d.quantity} ${d.unit}</td>
+      <td class="p-4 text-right">
+        <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-green-50 text-green-700 border border-green-100">
+          Completado
+        </span>
+      </td>
+    </tr>
+  `).join("");
+}
+
+// 🛡️ 4. CARGA DE DATOS PARA EL ADMINISTRADOR (SOLO LECTURA DE OTROS)
 function loadAdminData() {
   const users = JSON.parse(localStorage.getItem("users_db")) || [];
   const deliveries = JSON.parse(localStorage.getItem("deliveries_db")) || [];
 
-  // Filtrar administradores para no tomarlos en cuenta en las métricas de reciclaje
   const recyclersOnly = users.filter(u => u.role !== "admin");
 
-  // Calcular peso total reciclado únicamente en base a los registros almacenados (en kg)
   const totalWeight = deliveries.reduce((acc, del) => {
-    if (del.unit.includes("kg")) {
+    if (del.unit && del.unit.includes("kg")) {
       return acc + del.quantity;
     }
     return acc;
   }, 0);
 
-  // Pintar métricas en tarjetas
   if (document.getElementById("totalUsersCount")) {
     document.getElementById("totalUsersCount").textContent = recyclersOnly.length;
     document.getElementById("totalWeightCount").textContent = `${totalWeight.toFixed(1)} kg`;
     document.getElementById("totalDeliveriesCount").textContent = deliveries.length;
   }
 
-  // Cargar tabla de usuarios
   const tbody = document.getElementById("adminUsersTableBody");
   if (!tbody) return;
 
@@ -145,7 +193,6 @@ function loadAdminData() {
   }
 
   tbody.innerHTML = recyclersOnly.map(u => {
-    // Filtrar entregas del usuario actual
     const userDeliveries = deliveries.filter(d => d.userId === u.id);
     const totalQty = userDeliveries.reduce((sum, d) => sum + d.quantity, 0);
 
@@ -162,7 +209,7 @@ function loadAdminData() {
           ${userDeliveries.length} entregas (${totalQty.toFixed(1)} items/kg)
         </td>
         <td class="p-4 text-right">
-          <button onclick="deleteUser(${u.id})" class="text-xs bg-red-50 hover:bg-red-100 text-red-600 font-bold px-3 py-1.5 rounded-lg border border-red-100 transition">
+          <button onclick="deleteUser(${u.id})" class="text-xs bg-red-50 hover:bg-red-100 text-red-600 font-bold px-3 py-1.5 rounded-lg border border-red-100 transition cursor-pointer">
             Eliminar Cuenta
           </button>
         </td>
@@ -178,11 +225,10 @@ window.deleteUser = function(userId) {
     users = users.filter(u => u.id !== userId);
     localStorage.setItem("users_db", JSON.stringify(users));
     
-    // Opcional: Eliminar sus entregas asociadas para mantener las métricas limpias
     let deliveries = JSON.parse(localStorage.getItem("deliveries_db")) || [];
     deliveries = deliveries.filter(d => d.userId !== userId);
     localStorage.setItem("deliveries_db", JSON.stringify(deliveries));
 
-    loadAdminData(); // Recargar la tabla
+    loadAdminData();
   }
 };
