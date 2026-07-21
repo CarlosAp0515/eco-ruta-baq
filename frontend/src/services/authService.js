@@ -1,4 +1,4 @@
-// src/services/authService.js
+
 
 export function loginUser() {
     const form = document.getElementById("loginForm");
@@ -24,50 +24,8 @@ export function loginUser() {
 export function registerUser() {
     const form = document.getElementById("registerForm");
     const errorDiv = document.getElementById("registerError");
-    
-    // Elementos de la interfaz
-    const cardUser = document.getElementById("roleCardUser");
-    const cardAdmin = document.getElementById("roleCardAdmin");
-    const roleInput = document.getElementById("regRole");
-    const submitBtn = document.getElementById("registerSubmitBtn");
 
     if (!form) return;
-
-    // --- MANEJO DINÁMICO DE TARJETAS Y CAMBIO DE COLOR DEL BOTÓN ---
-    if (cardUser && cardAdmin && roleInput && submitBtn) {
-        
-        // Clic en Reciclador (Verde)
-        cardUser.addEventListener("click", () => {
-            roleInput.value = "user";
-            
-            // 1. Estilos de la Tarjeta Reciclador (Activa en verde)
-            cardUser.className = "cursor-pointer border-2 border-green-600 bg-green-50/50 rounded-2xl p-4 text-center transition-all duration-200 shadow-md flex flex-col items-center justify-center gap-2 ring-2 ring-green-600/20";
-            
-            // Desactivar Tarjeta Admin
-            cardAdmin.className = "cursor-pointer border-2 border-slate-200 bg-white rounded-2xl p-4 text-center transition-all duration-200 hover:border-blue-500 shadow-sm flex flex-col items-center justify-center gap-2 opacity-60";
-            
-            // 2. Habilitar y pintar botón en VERDE
-            submitBtn.disabled = false;
-            submitBtn.textContent = "Registrarse como Reciclador 🌱";
-            submitBtn.className = "w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-bold text-white bg-green-700 hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-300 cursor-pointer";
-        });
-
-        // Clic en Administrador (Azul)
-        cardAdmin.addEventListener("click", () => {
-            roleInput.value = "admin";
-            
-            // 1. Estilos de la Tarjeta Administrador (Activa en azul)
-            cardAdmin.className = "cursor-pointer border-2 border-blue-600 bg-blue-50/50 rounded-2xl p-4 text-center transition-all duration-200 shadow-md flex flex-col items-center justify-center gap-2 ring-2 ring-blue-600/20";
-            
-            // Desactivar Tarjeta Reciclador
-            cardUser.className = "cursor-pointer border-2 border-slate-200 bg-white rounded-2xl p-4 text-center transition-all duration-200 hover:border-green-500 shadow-sm flex flex-col items-center justify-center gap-2 opacity-60";
-            
-            // 2. Habilitar y pintar botón en AZUL
-            submitBtn.disabled = false;
-            submitBtn.textContent = "Registrarse como Administrador 💼";
-            submitBtn.className = "w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-bold text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300 cursor-pointer";
-        });
-    }
 
     // --- PROCESAMIENTO DEL REGISTRO ---
     form.addEventListener("submit", (e) => {
@@ -78,12 +36,11 @@ export function registerUser() {
         const email = document.getElementById("regEmail").value.trim();
         const password = document.getElementById("regPassword").value;
         const confirmPassword = document.getElementById("regConfirmPassword").value;
-        const role = roleInput ? roleInput.value : "";
 
         // Validaciones del lado del cliente
-        if (!name || !email || !password || !confirmPassword || !role) {
+        if (!name || !email || !password || !confirmPassword) {
             if (errorDiv) {
-                errorDiv.textContent = "⚠️ Todos los campos son obligatorios. Selecciona un Rol haciendo clic en una de las tarjetas.";
+                errorDiv.textContent = "⚠️ Todos los campos son obligatorios.";
                 errorDiv.classList.remove("hidden");
             }
             return;
@@ -116,13 +73,13 @@ export function registerUser() {
             return;
         }
 
-        // Crear usuario
+        // Crear usuario con ROL "user" POR DEFECTO
         const newUser = {
             id: Date.now(),
             name,
             email,
             password,
-            role
+            role: "user" // Todos los nuevos usuarios se registran como recicladores
         };
 
         users.push(newUser);

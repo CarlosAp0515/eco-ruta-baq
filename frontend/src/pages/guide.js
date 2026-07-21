@@ -14,7 +14,7 @@ export function guidePage() {
             </div>
         </nav>
 
-        <header class="bg-gradient-to-br from-green-700 via-green-600 to-emerald-500 text-white py-16 px-6">
+        <header class="bg-gradient-to-br from-green-700 via-green-800 to-emerald-500 text-white py-16 px-6">
             <div class="max-w-4xl mx-auto text-center space-y-4">
                 <span class="bg-white/20 text-white font-bold uppercase text-xs tracking-wider px-3.5 py-1.5 rounded-full">Aprende a Reciclar</span>
                 <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight">Guia Completa de Reciclaje</h1>

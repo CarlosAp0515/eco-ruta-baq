@@ -2,7 +2,7 @@
 
 export function dashboardPage() {
   const currentUser = JSON.parse(localStorage.getItem("current_user"));
-  if (!currentUser) return `<p class="p-4 sm:p-8">Cargando...</p>`;
+  if (!currentUser) return `<p class="p-4 sm:p-8 text-slate-600 font-medium">Cargando...</p>`;
 
   return `
   <!-- ESTILOS INYECTADOS PARA ANIMACIONES Y AJUSTES DE LEAFLET -->
@@ -31,7 +31,7 @@ export function dashboardPage() {
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
         <div class="flex items-center gap-3 sm:gap-6">
           <div class="flex items-center gap-2 shrink-0">
-          <img src="./src/assets/IconoEcoruta.png" alt="EcoRuta BAQ Logo" class="w-20 h-20 object-contain shrink-0">    
+            <img src="./src/assets/IconoEcoruta.png" alt="EcoRuta BAQ Logo" class="w-16 h-16 sm:w-20 sm:h-20 object-contain shrink-0">    
             <span class="text-lg sm:text-2xl font-extrabold text-green-800 tracking-tight shrink-0">EcoRuta BAQ</span>
           </div>
           <nav class="hidden md:flex items-center gap-4">
@@ -41,7 +41,7 @@ export function dashboardPage() {
         
         <div class="flex items-center gap-3 sm:gap-4 ml-auto text-right">
           <span class="text-xs sm:text-sm font-medium text-slate-700 truncate max-w-[120px] sm:max-w-none">
-            Hola, <b class="text-slate-900">${currentUser.name}</b>
+            Hola, <b class="text-slate-900">${currentUser.name || 'Usuario'}</b>
           </span>
           <button id="logoutBtn" class="text-xs sm:text-sm font-bold text-red-600 hover:text-red-700 transition-colors cursor-pointer shrink-0">
             Salir
@@ -61,7 +61,7 @@ export function dashboardPage() {
           <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Mi Balance de Reciclaje</h1>
           <p class="text-slate-500 mt-1 text-xs sm:text-sm">Gestiona tus entregas, mapea puntos en Barranquilla y redime premios.</p>
         </div>
-        <button id="openModalBtn" class="w-full sm:w-auto bg-green-700 hover:bg-green-800 text-white font-bold px-5 py-3.5 rounded-xl sm:rounded-2xl inline-flex items-center justify-center gap-2 shadow-sm transition-all transform active:scale-98 cursor-pointer text-sm sm:text-base">
+        <button id="openModalBtn" class="w-full sm:w-auto bg-green-700 hover:bg-green-800 text-white font-bold px-5 py-3.5 rounded-xl sm:rounded-2xl inline-flex items-center justify-center gap-2 shadow-sm transition-all transform active:scale-95 cursor-pointer text-sm sm:text-base">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
           </svg>
@@ -69,7 +69,7 @@ export function dashboardPage() {
         </button>
       </div>
 
-      <!-- TARJETAS DE BALANCE RESPONSIVE CORREGIDAS -->
+      <!-- TARJETAS DE BALANCE RESPONSIVE -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         <div class="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between gap-4">
           <div class="space-y-1">
@@ -128,12 +128,12 @@ export function dashboardPage() {
                   <th class="pb-3 font-semibold text-right">Acciones</th>
                 </tr>
               </thead>
-              <tbody id="historyTableBody" class="text-xs sm:text-sm divide-y divide-slate-100 text-slate-700 font-medium"></tbody>
+              <tbody id="userDeliveriesTableBodyBody" class="text-xs sm:text-sm divide-y divide-slate-100 text-slate-700 font-medium"></tbody>
             </table>
           </div>
         </div>
 
-        <!-- RECOMPENSAS: LISTADO ABIERTO Y DIRECTO (SIN ACORDEÓN) -->
+        <!-- RECOMPENSAS -->
         <div id="rewardsContainer" class="bg-white p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-sm space-y-4">
           <h3 class="text-base sm:text-lg font-bold text-slate-900">Canjear Recompensas</h3>
           <div class="space-y-4">
@@ -223,13 +223,14 @@ export function initDashboard() {
   const currentUser = JSON.parse(localStorage.getItem("current_user"));
   if (!currentUser) return;
 
-  const tableBody = document.getElementById("historyTableBody");
+  const tableBody = document.getElementById("userDeliveriesTableBodyBody");
   const modal = document.getElementById("crudModal");
   const form = document.getElementById("crudForm");
   const notificationContainer = document.getElementById("notificationContainer");
   const rewardsContainer = document.getElementById("rewardsContainer");
+  const logoutBtn = document.getElementById("logoutBtn");
   
-  let keyStorage = `records_${currentUser.email}`;
+  const keyStorage = `records_${currentUser.email}`;
   if (!localStorage.getItem(keyStorage)) {
     const initRecords = [
       { fecha: "2026-07-16", categoria: "Plástico", peso: 25, unidad: "Kg", puntos: 500 },
@@ -250,6 +251,12 @@ export function initDashboard() {
   ];
   localStorage.setItem('eco_puntos', JSON.stringify(puntosBarranquilla));
 
+  // Manejador de Cierre de Sesión
+  logoutBtn?.addEventListener("click", () => {
+    localStorage.removeItem("current_user");
+    window.location.hash = "#/";
+  });
+
   function showToast(message) {
     if (!notificationContainer) return;
     const toast = document.createElement("div");
@@ -264,47 +271,61 @@ export function initDashboard() {
 
   function renderAll() {
     const records = JSON.parse(localStorage.getItem(keyStorage)) || [];
-    let totalPoints = records.reduce((sum, r) => sum + r.puntos, 0);
-    let totalWeight = records.reduce((sum, r) => sum + r.peso, 0);
+    const totalPoints = records.reduce((sum, r) => sum + r.puntos, 0);
+    
+    // Suma solo el material entregado real (excluye canjes de puntos)
+    const totalWeight = records
+      .filter(r => r.categoria !== "Canje Recompensa")
+      .reduce((sum, r) => sum + r.peso, 0);
 
-    if (document.getElementById("userPointsDisplay")) {
-      document.getElementById("userPointsDisplay").innerText = `${totalPoints} pts`;
-    }
-    if (document.getElementById("userWeightDisplay")) {
-      // Muestra claramente la métrica en Kg por defecto para el totalizador del usuario
-      document.getElementById("userWeightDisplay").innerText = `${totalWeight} Kg`;
-    }
+    const pointsElem = document.getElementById("userPointsDisplay");
+    const weightElem = document.getElementById("userWeightDisplay");
+
+    if (pointsElem) pointsElem.innerText = `${totalPoints} pts`;
+    if (weightElem) weightElem.innerText = `${totalWeight} Kg`;
 
     if (tableBody) {
-      tableBody.innerHTML = records.map((rec, index) => `
-        <tr class="hover:bg-slate-50/60 transition-colors">
-          <td class="py-4 text-slate-500 whitespace-nowrap">${rec.fecha}</td>
-          <td class="py-4">
-            <span class="${
-              rec.categoria === 'Plástico' ? 'bg-amber-50 text-amber-700 border border-amber-100' :
-              rec.categoria === 'Cartón y Papel' ? 'bg-blue-50 text-blue-700 border border-blue-100' :
-              rec.categoria === 'Canje Recompensa' ? 'bg-red-50 text-red-700 border border-red-100' :
-              'bg-emerald-50 text-emerald-700 border border-emerald-100'
-            } px-2.5 py-0.5 rounded-full text-[11px] font-bold whitespace-nowrap">
-              ${rec.categoria}
-            </span>
-          </td>
-          <td class="py-4 text-slate-900 font-semibold whitespace-nowrap">${rec.peso > 0 ? `${rec.peso} ${rec.unidad || 'Kg'}` : '-'}</td>
-          <td class="py-4 ${rec.puntos >= 0 ? 'text-green-600' : 'text-red-600'} font-bold whitespace-nowrap">
-            ${rec.puntos >= 0 ? `+${rec.puntos}` : rec.puntos} pts
-          </td>
-          <td class="py-4 text-right space-x-2 whitespace-nowrap">
-            ${rec.categoria !== 'Canje Recompensa' ? `
-              <button data-index="${index}" class="edit-btn text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg border-2 border-blue-800 shadow-xs transition-all active:scale-95 cursor-pointer">
-                Editar
+      if (records.length === 0) {
+        tableBody.innerHTML = `
+          <tr>
+            <td colspan="5" class="py-6 text-center text-slate-400 font-normal">
+              Aún no tienes entregas registradas.
+            </td>
+          </tr>
+        `;
+      } else {
+        tableBody.innerHTML = records.map((rec, index) => `
+          <tr class="hover:bg-slate-50/60 transition-colors">
+            <td class="py-4 text-slate-500 whitespace-nowrap">${rec.fecha}</td>
+            <td class="py-4">
+              <span class="${
+                rec.categoria === 'Plástico' ? 'bg-amber-50 text-amber-700 border border-amber-100' :
+                rec.categoria === 'Cartón y Papel' ? 'bg-blue-50 text-blue-700 border border-blue-100' :
+                rec.categoria === 'Canje Recompensa' ? 'bg-red-50 text-red-700 border border-red-100' :
+                'bg-emerald-50 text-emerald-700 border border-emerald-100'
+              } px-2.5 py-0.5 rounded-full text-[11px] font-bold whitespace-nowrap">
+                ${rec.categoria}
+              </span>
+            </td>
+            <td class="py-4 text-slate-900 font-semibold whitespace-nowrap">
+              ${rec.peso > 0 ? `${rec.peso} ${rec.unidad || 'Kg'}` : '-'}
+            </td>
+            <td class="py-4 ${rec.puntos >= 0 ? 'text-green-600' : 'text-red-600'} font-bold whitespace-nowrap">
+              ${rec.puntos >= 0 ? `+${rec.puntos}` : rec.puntos} pts
+            </td>
+            <td class="py-4 text-right space-x-2 whitespace-nowrap">
+              ${rec.categoria !== 'Canje Recompensa' ? `
+                <button data-index="${index}" class="edit-btn text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg border-2 border-blue-800 shadow-xs transition-all active:scale-95 cursor-pointer">
+                  Editar
+                </button>
+              ` : ''}
+              <button data-index="${index}" class="delete-btn text-xs font-bold bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg border-2 border-red-800 shadow-xs transition-all active:scale-95 cursor-pointer">
+                Eliminar
               </button>
-            ` : ''}
-            <button data-index="${index}" class="delete-btn text-xs font-bold bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg border-2 border-red-800 shadow-xs transition-all active:scale-95 cursor-pointer">
-              Eliminar
-            </button>
-          </td>
-        </tr>
-      `).join('');
+            </td>
+          </tr>
+        `).join('');
+      }
     }
 
     document.querySelectorAll(".reward-btn").forEach(btn => {
@@ -346,13 +367,13 @@ export function initDashboard() {
     setTimeout(() => map.invalidateSize(), 300);
   }
 
-  // EVENTOS DEL CONTENEDOR DE RECOMPENSAS
+  // Eventos de Recompensas
   rewardsContainer?.addEventListener("click", (e) => {
     const rewardBtn = e.target.closest(".reward-btn");
     if (rewardBtn && !rewardBtn.disabled) {
       const cost = parseInt(rewardBtn.getAttribute("data-cost"));
       const records = JSON.parse(localStorage.getItem(keyStorage)) || [];
-      let totalPoints = records.reduce((sum, r) => sum + r.puntos, 0);
+      const totalPoints = records.reduce((sum, r) => sum + r.puntos, 0);
 
       if (totalPoints >= cost) {
         const today = new Date().toISOString().split('T')[0];
@@ -370,6 +391,7 @@ export function initDashboard() {
     }
   });
 
+  // Modal y CRUD
   document.getElementById("openModalBtn")?.addEventListener("click", () => {
     document.getElementById("modalTitle").innerText = "Registrar Nueva Entrega";
     document.getElementById("entryIndex").value = "";
@@ -387,8 +409,15 @@ export function initDashboard() {
     const weight = parseFloat(document.getElementById("entryWeight").value);
     const unit = document.getElementById("entryUnit").value;
     
-    let factor = mat === "Plástico" ? 20 : mat === "Cartón y Papel" ? 15 : 80;
-    let pointsCalculated = Math.round(weight * factor);
+    // Cálculo unificado de puntos por categoría
+    const factors = {
+      "Plástico": 20,
+      "Cartón y Papel": 15,
+      "Vidrio": 10,
+      "Aceite Usado": 25
+    };
+    const factor = factors[mat] || 15;
+    const pointsCalculated = Math.round(weight * factor);
 
     if (index === "") {
       const today = new Date().toISOString().split('T')[0];

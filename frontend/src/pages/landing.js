@@ -15,7 +15,7 @@ export function landingPage() {
           EcoRuta BAQ
         </span>
         <div class="flex items-center gap-4">
-          <a href="#/guia" class="text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors">Guía de Reciclaje</a>
+          <a href="#/guia" class="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:text-slate-900 transition-colors">Guía de Reciclaje</a>
           <a href="#/login" class="text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors">Iniciar Sesión</a>
           <a href="#/register" class="bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition-all">
             Registrarse
