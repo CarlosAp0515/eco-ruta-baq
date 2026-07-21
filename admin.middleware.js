@@ -1,0 +1,47 @@
+@import "tailwindcss";
+
+/* Colores
+
+Primario
+
+#22C55E
+
+Secundario
+
+#16A34A
+
+Fondo
+
+#F8FAFC
+
+Texto
+
+#1F2937
+
+Error
+
+#EF4444 
+
+Tipografía
+
+Google Font
+
+Inter
+
+*/
+
+
+/* 
+Bordes
+
+Todos los Inputs
+
+rounded-xl
+
+Botones
+
+rounded-xl
+
+Cards
+
+rounded-2xl */
